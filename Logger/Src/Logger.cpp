@@ -1,7 +1,4 @@
 #include "Logger.h"
-#include <assert.h>
-#include <thread>
-
 
 int main()
 {
