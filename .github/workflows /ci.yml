@@ -1,0 +1,34 @@
+name: C++ CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Conan
+      run: |
+        pip install conan==2.0.17
+        conan profile detect
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build with Conan
+      run: |
+        conan install . --build missing
+        conan build .
+
+    # - name: Test
+    #   run: |
+    #     cmake --build build --target test
