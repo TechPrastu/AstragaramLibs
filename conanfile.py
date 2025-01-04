@@ -23,6 +23,10 @@ class AstragaramLibs(ConanFile):
       cmake.configure()
       cmake.build()
       self.run(os.path.join(self.cpp.build.bindir, "test_sum"))
+   
+   def test(self):
+        cmake = CMake(self)
+        cmake.test()
 
    def layout(self):
         cmake_layout(self)

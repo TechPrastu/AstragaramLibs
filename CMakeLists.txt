@@ -46,5 +46,7 @@ target_link_libraries(simple_client IPCSocket)
 
 #### GTest #####################################################################
 
-add_executable(test_sum test/test.cpp)
-target_link_libraries(test_sum GTest::gtest GTest::gtest_main)
+add_executable(test_sum GTest/test.cpp)
+target_link_libraries(test_sum GTest::gtest GTest::gtest_main ${CONAN_LIBS})
+
+add_test(NAME test_sum COMMAND test_sum)

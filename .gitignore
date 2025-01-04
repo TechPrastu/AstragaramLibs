@@ -33,3 +33,5 @@
 
 CMakeUserPresets.json
 build
+.vsconan
+.vscode
