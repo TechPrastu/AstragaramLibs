@@ -1,0 +1,28 @@
+name: Create Git Tag on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  create-tag:
+    if: ${{ github.event.pull_request.merged }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Set up Git user
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Run Version Update Script
+        run: |
+          python .github/version_update.py
