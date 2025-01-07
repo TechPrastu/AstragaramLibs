@@ -16,6 +16,5 @@ int main()
 	Logger::Info("This is the test msg %d", 10);
 	Logger::Trace("This is the test msg %d", 30);
 
-	
 	return 0;
 }
