@@ -28,6 +28,16 @@ class AstragaramLibs(ConanFile):
       deps = CMakeDeps(self)
       deps.generate()
 
+   def run_astyle(self):
+      astyle_path = self.which("astyle")
+      if astyle_path:
+         self.output.info("Running astyle to format source files")
+         os.chdir(self.source_folder)  # Folder change to Source
+         os.system('find . -name "*.cpp" -o -name "*.h" | xargs astyle --style=linux --suffix=none --indent=spaces=4 --add-brackets')
+         os.chdir(self.build_folder)  # Change back to build folder
+      else:
+         self.output.info("astyle is not installed. Skipping code formatting. Suggesting to install astyle: sudo apt-get install -y astyle")
+
    def build(self):
       cmake = CMake(self)
       cmake.configure()
