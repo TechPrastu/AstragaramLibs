@@ -8,18 +8,15 @@ ServerSocket::ServerSocket ( int port )
 {
     Logger::Trace("%s: port:%d", __func__, port );
 
-    if ( ! Socket::create() )
-    {
+    if ( ! Socket::create() ) {
         throw SocketException ( "Could not create server socket." );
     }
 
-    if ( ! Socket::bind ( port ) )
-    {
+    if ( ! Socket::bind ( port ) ) {
         throw SocketException ( "Could not bind to port." );
     }
 
-    if ( ! Socket::listen() )
-    {
+    if ( ! Socket::listen() ) {
         throw SocketException ( "Could not listen to socket." );
     }
 }
@@ -28,18 +25,15 @@ ServerSocket::ServerSocket ( std::string serverPath)
 {
     Logger::Trace("%s: serverPath:%s", __func__, serverPath );
 
-    if ( ! Socket::create( serverPath ) )
-    {
+    if ( ! Socket::create( serverPath ) ) {
         throw SocketException ( "Could not create server socket." );
     }
 
-    if ( ! Socket::bind ( serverPath ) )
-    {
+    if ( ! Socket::bind ( serverPath ) ) {
         throw SocketException ( "Could not bind to port." );
     }
 
-    if ( ! Socket::listen() )
-    {
+    if ( ! Socket::listen() ) {
         throw SocketException ( "Could not listen to socket." );
     }
 }
@@ -51,8 +45,7 @@ ServerSocket::~ServerSocket()
 
 const ServerSocket& ServerSocket::operator << ( const std::string& s ) const
 {
-    if ( ! Socket::send ( s ) )
-    {
+    if ( ! Socket::send ( s ) ) {
         throw SocketException ( "Could not write to socket." );
     }
 
@@ -62,8 +55,7 @@ const ServerSocket& ServerSocket::operator << ( const std::string& s ) const
 
 const ServerSocket& ServerSocket::operator >> ( std::string& s ) const
 {
-    if ( ! Socket::recv ( s ) )
-    {
+    if ( ! Socket::recv ( s ) ) {
         throw SocketException ( "Could not read from socket." );
     }
 
@@ -74,8 +66,7 @@ void ServerSocket::accept ( ServerSocket& sock, const bool &blocking )
 {
     Logger::Trace("%s", __func__ );
 
-    if ( ! Socket::accept ( sock ) )
-    {
+    if ( ! Socket::accept ( sock ) ) {
         throw SocketException ( "Could not accept socket." );
     }
 

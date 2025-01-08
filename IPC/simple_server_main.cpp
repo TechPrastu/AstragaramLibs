@@ -9,22 +9,18 @@ int main(int argc, char *argv[])
 
     Logger::Info( "%s", "running....");
 
-    try
-    {
+    try {
         // Create the socket
         // ServerSocket server ( 30000 );
         unlink("/tmp/server_tmp");
         ServerSocket server("/tmp/server_tmp");
 
-        while (true)
-        {
+        while (true) {
             ServerSocket new_sock;
             server.accept(new_sock, false);
 
-            try
-            {
-                while (true)
-                {
+            try {
+                while (true) {
                     std::string data;
                     new_sock >> data;
                     std::cout << "Server recv data from client is : " << data;
@@ -34,14 +30,10 @@ int main(int argc, char *argv[])
                     std::getline(std::cin, newData);
                     new_sock << newData;
                 }
-            }
-            catch (SocketException &)
-            {
+            } catch (SocketException &) {
             }
         }
-    }
-    catch (SocketException &e)
-    {
+    } catch (SocketException &e) {
         std::cout << "Exception was caught:" << e.description() << "\nExiting.\n";
     }
 

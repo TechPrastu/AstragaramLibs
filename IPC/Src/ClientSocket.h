@@ -12,7 +12,7 @@ public:
 
     ClientSocket ( std::string host, int port );
     ClientSocket ( std::string serverPath );
-    virtual ~ClientSocket(){};
+    virtual ~ClientSocket() {};
 
     const ClientSocket& operator << ( const std::string& ) const;
     const ClientSocket& operator >> ( std::string& ) const;

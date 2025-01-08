@@ -8,16 +8,14 @@ int main(int argc, char *argv[])
 {
     Logger::SetPriority(LogLevel::INFO);
 
-    try
-    {
+    try {
         // ClientSocket client_socket ( "localhost", 30000 );
 
         ClientSocket client_socket("/tmp/server_tmp");
 
         std::string reply;
 
-        try
-        {
+        try {
 
             std::cout << "Enter data for server:";
             std::string newData;
@@ -26,13 +24,9 @@ int main(int argc, char *argv[])
             client_socket >> reply;
             std::cout << "We received this response from the server:\n\"" << reply << "\"\n";
 
+        } catch (SocketException &) {
         }
-        catch (SocketException &)
-        {
-        }
-    }
-    catch (SocketException &e)
-    {
+    } catch (SocketException &e) {
         std::cout << "Exception was caught:" << e.description() << "\n";
     }
 
