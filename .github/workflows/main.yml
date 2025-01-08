@@ -15,12 +15,19 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install Conan
+    - name: Conan Installation ...
       run: |
         pip install conan==2.0.17
         conan profile detect
 
-    - name: Build with Conan
+    - name: Install the requirements specified in a  conan recipe
       run: |
-        conan install . --build missing
+        conan install . --build missing -u
+    
+    - name: Installing dependencies and call the build() method.
+      run: |
         conan build .
+
+    - name: Creating a package directly from pre-compiled binaries.
+      run: |
+        conan export-pkg .
