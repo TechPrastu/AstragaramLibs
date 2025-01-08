@@ -8,15 +8,15 @@
 class ServerSocket : private Socket
 {
 public:
-    ServerSocket ( int port );
-    ServerSocket ( std::string );
-    ServerSocket () {};
+    ServerSocket( int port );
+    ServerSocket( std::string );
+    ServerSocket() {};
     virtual ~ServerSocket();
 
     const ServerSocket& operator << ( const std::string& ) const;
     const ServerSocket& operator >> ( std::string& ) const;
 
-    void accept ( ServerSocket&, const bool &blocking = false );
+    void accept( ServerSocket&, const bool &blocking = false );
 };
 
 

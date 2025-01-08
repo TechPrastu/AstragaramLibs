@@ -10,8 +10,8 @@ class ClientSocket : private Socket
 {
 public:
 
-    ClientSocket ( std::string host, int port );
-    ClientSocket ( std::string serverPath );
+    ClientSocket( std::string host, int port );
+    ClientSocket( std::string serverPath );
     virtual ~ClientSocket() {};
 
     const ClientSocket& operator << ( const std::string& ) const;

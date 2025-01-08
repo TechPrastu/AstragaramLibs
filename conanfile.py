@@ -40,7 +40,7 @@ class AstragaramLibs(ConanFile):
             self.output.info("Running astyle to format source files")
             os.chdir(self.source_folder)  # Folder change to Source
             os.system(
-                'find . -name "*.cpp" -o -name "*.h" | xargs astyle --style=linux --suffix=none --indent=spaces=4 --add-brackets'
+                'find . -name "*.cpp" -o -name "*.h" | xargs astyle --options=none --indent=spaces=4 --style=break --indent-preprocessor --pad-oper --pad-paren-in  --unpad-paren --convert-tabs --preserve-date --formatted --min-conditional-indent=0 --max-instatement-indent=80 --lineend=linux --suffix=none'
             )
             os.chdir(self.build_folder)  # Change back to build folder
         else:

@@ -11,6 +11,6 @@
 > - conan profile detect --name default
 
 #### Now use following steps to compile code
-> - conan install . --output-folder build
-> - conan build . --output-folder build
-
+> - conan install . -u
+> - conan build . 
+> - conan export-pkg . 

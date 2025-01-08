@@ -4,6 +4,8 @@
 #include <thread>
 #include <vector>
 #include <functional>
+#include <iostream>
+#include <exception>
 
 class ThreadManager
 {
@@ -15,7 +17,7 @@ public:
     ~ThreadManager();
 
     // Add a new thread with a given function
-    void addThread(std::function<void()> func);
+    void addThread( std::function<void()> func );
 
     // Join all threads
     void joinAll();
