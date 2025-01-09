@@ -12,18 +12,17 @@ def get_current_branch():
         print(f"Error fetching current branch: {e}")
         return None
 
-
 # Function to check if there are any tags in the repository
 def has_tags():
     try:
         tags = os.popen("git tag").read().strip()
+        print(f"tags: {tags}")  # Debug print
         if not tags:
             return False
         return True
     except Exception as e:
         print(f"Error checking for tags: {e}")
         return False
-
 
 # Function to get the latest tag
 def get_latest_tag():
@@ -34,8 +33,8 @@ def get_latest_tag():
 
         latest_tag_commit = os.popen("git rev-list --tags --max-count=1").read().strip()
         latest_tag = os.popen(f"git describe --tags {latest_tag_commit}").read().strip()
-        print(f"Latest tag commit: {latest_tag_commit}")
-        print(f"Latest tag result: {latest_tag}")
+        print(f"Latest tag commit: {latest_tag_commit}")  # Debug print
+        print(f"Latest tag result: {latest_tag}")  # Debug print
 
         if not latest_tag:
             return "0.0.0"
@@ -45,15 +44,13 @@ def get_latest_tag():
         print(f"Error fetching latest tag: {e}")
         return "0.0.0"
 
-
 # Function to read the current version from the latest tag
 def read_current_version():
     latest_tag = get_latest_tag()
-    print(f"Current version is: {latest_tag}")
+    print(f"Current version is: {latest_tag}")  # Debug print
     if not latest_tag:
         return "0.0.0"
     return re.sub(r"\+.*$", "", latest_tag)  # Remove the commit hash part if it exists
-
 
 # Function to increment the version based on the PR description
 def increment_version(current_version, version_type):
@@ -73,14 +70,15 @@ def increment_version(current_version, version_type):
     new_version = f"{major}.{minor}.{patch}"
     return new_version
 
-
 # Get the latest commit hash
 commit_hash = subprocess.run(
     ["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True
 ).stdout.strip()
+print(f"commit_hash: {commit_hash}")  # Debug print
 
 # Read the current version from the latest tag
 current_version = read_current_version()
+print(f"current_version: {current_version}")  # Debug print
 
 # Determine the version type from the PR description (default to "Patch")
 version_type = "Patch"
@@ -91,6 +89,8 @@ if "[Major]" in pr_description:
     version_type = "Major"
 elif "[Minor]" in pr_description:
     version_type = "Minor"
+
+print(f"version_type: {version_type}")  # Debug print
 
 # Increment the version
 new_version = increment_version(current_version, version_type)
@@ -105,4 +105,4 @@ subprocess.run(
 subprocess.run(["git", "push", "origin", full_version])
 
 # Output the new version
-print(f"New version is: {full_version}")
+print(f"New version is: {full_version}")  # Debug print
