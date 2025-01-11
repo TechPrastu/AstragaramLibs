@@ -1,4 +1,5 @@
 [![Contributors][contributors-shield]][contributors-url]
+[![Pull Requests][pull-requests-shield]][pull-requests-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stargazers-shield]][stargazers-url]
 [![Issues][issues-shield]][issues-url]
@@ -7,6 +8,8 @@
 
 [contributors-shield]: https://img.shields.io/github/contributors/TechPrastu/AstragaramLibs.svg?style=for-the-badge
 [contributors-url]: https://github.com/TechPrastu/AstragaramLibs/graphs/contributors
+[pull-requests-shield]: https://img.shields.io/github/issues-pr/TechPrastu/AstragaramLibs.svg?style=for-the-badge
+[pull-requests-url]: https://github.com/TechPrastu/AstragaramLibs/pulls
 [forks-shield]: https://img.shields.io/github/forks/TechPrastu/AstragaramLibs.svg?style=for-the-badge
 [forks-url]: https://github.com/TechPrastu/AstragaramLibs/network/members
 [stargazers-shield]: https://img.shields.io/github/stars/TechPrastu/AstragaramLibs.svg?style=for-the-badge
