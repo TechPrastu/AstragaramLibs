@@ -2,21 +2,21 @@
 #ifndef SocketException_class
 #define SocketException_class
 
+#include <exception>
 #include <string>
 
-class SocketException
+class SocketException : public std::exception
 {
 public:
-    SocketException( std::string s ) : m_s( s ) {};
-    ~SocketException() {};
+    explicit SocketException( const std::string& message ) : m_s( message ) {}
+    ~SocketException() noexcept override = default;
 
-    std::string description()
+    const char* what() const noexcept override
     {
-        return m_s;
+        return m_s.c_str();
     }
 
 private:
-
     std::string m_s;
 };
 
