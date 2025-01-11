@@ -16,7 +16,6 @@ def get_current_branch():
 def has_tags():
     try:
         tags = os.popen("git tag").read().strip()
-        print(f"tags: {tags}")  # Debug print
         if not tags:
             return False
         return True

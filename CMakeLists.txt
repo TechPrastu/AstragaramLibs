@@ -44,6 +44,15 @@ add_executable(simple_client IPC/simple_client_main.cpp)
 target_link_libraries(simple_server IPCSocket)
 target_link_libraries(simple_client IPCSocket)
 
+add_executable(test_Socket IPC/GTest/test_Socket.cpp)
+target_link_libraries(test_Socket 
+    GTest::gtest 
+    GTest::gtest_main
+    IPCSocket
+)
+
+add_test(NAME test_Socket COMMAND test_Socket)
+
 #### GTest #####################################################################
 
 add_executable(test_sum GTest/test.cpp)
@@ -70,7 +79,6 @@ install(DIRECTORY ThreadManager/Src/
 add_executable(example_thread ThreadManager/example_thread.cpp)
 target_link_libraries(example_thread ThreadManager)
 
-message(INFO "  CONAN_LIBS:", ${CONAN_LIBS})
 add_executable(test_ThreadManager ThreadManager/GTest/test_ThreadManager.cpp)
 target_link_libraries(test_ThreadManager 
     GTest::gtest 

@@ -7,34 +7,34 @@
 
 ClientSocket::ClientSocket( std::string host, int port )
 {
-    Logger::Trace( "%s: host:%s, port:%d", __func__, host, port );
+    Logger::Trace( "%s: host:%s, port:%d", __func__, host.c_str(), port );
 
-    if( ! Socket::create() )
+    if( !Socket::create() )
     {
+        Logger::Error( " %s Could not create client socket.", __func__ );
         throw SocketException( "Could not create client socket." );
     }
-
-    if( ! Socket::connect( host, port ) )
+    if( !Socket::connect( host, port ) )
     {
-        throw SocketException( "Could not bind to port." );
+        Logger::Error( " %s Could not connect to port.", __func__ );
+        throw SocketException( "Could not connect to port." );
     }
 }
-
 ClientSocket::ClientSocket( std::string serverPath )
 {
-    Logger::Trace( "%s: serverPath:%s", __func__, serverPath );
+    Logger::Trace( "%s: serverPath:%s", __func__, serverPath.c_str() );
 
-    if( ! Socket::create( serverPath ) )
+    if( !Socket::create( serverPath ) )
     {
+        Logger::Error( " %s Could not create client socket.", __func__ );
         throw SocketException( "Could not create client socket." );
     }
-
-    if( ! Socket::connect( serverPath ) )
+    if( !Socket::connect( serverPath ) )
     {
-        throw SocketException( "Could not bind to serverPath " + serverPath );
+        Logger::Error( " %s Could not connect to serverPath: %s", __func__, serverPath.c_str() );
+        throw SocketException( "Could not connect to serverPath " + serverPath );
     }
 }
-
 
 const ClientSocket& ClientSocket::operator << ( const std::string& s ) const
 {
@@ -44,9 +44,7 @@ const ClientSocket& ClientSocket::operator << ( const std::string& s ) const
     }
 
     return *this;
-
 }
-
 
 const ClientSocket& ClientSocket::operator >> ( std::string& s ) const
 {

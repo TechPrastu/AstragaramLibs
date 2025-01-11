@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
     }
     catch( SocketException &e )
     {
-        std::cout << "Exception was caught:" << e.description() << "\n";
+        std::cout << "Exception was caught:" << std::string( e.what() ) << "\n";
     }
 
     return 0;
