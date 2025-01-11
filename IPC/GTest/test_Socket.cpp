@@ -81,7 +81,7 @@ TEST( SocketCommunicationTest, SendReceiveDataSocket )
     server_thread.join();
     client_thread.join();
 }
-/*
+
 // Test case for ServerSocket creation with port
 TEST( ServerSocketTest, CreateWithPort )
 {
@@ -106,7 +106,7 @@ TEST( ServerSocketTest, CreateWithServerPath )
 // {
 //     ASSERT_NO_THROW( ClientSocket client( "/tmp/server.sock" ) );
 // }
-*/
+
 // Test case for SocketException
 TEST( SocketExceptionTest, ThrowSocketException )
 {
@@ -123,6 +123,5 @@ TEST( SocketExceptionTest, ThrowSocketException )
 int main( int argc, char **argv )
 {
     ::testing::InitGoogleTest( &argc, argv );
-    Logger::SetPriority( LogLevel::INFO );
     return RUN_ALL_TESTS();
 }

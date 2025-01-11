@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "ThreadManager.h"
+#include "Logger.h"
 
 // Test if threads are created and executed correctly
 TEST( ThreadManagerTest, AddAndExecuteThreads )
@@ -68,6 +69,7 @@ TEST( ThreadManagerTest, DestructorJoinsThreads )
 
 int main( int argc, char **argv )
 {
+    Logger::SetPriority( LogLevel::TRACE );
     ::testing::InitGoogleTest( &argc, argv );
     return RUN_ALL_TESTS();
 }

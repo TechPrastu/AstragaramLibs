@@ -68,6 +68,7 @@ add_library(ThreadManager STATIC
 
 target_include_directories(ThreadManager PUBLIC
     ThreadManager/Src
+    Logger/Src
 )
 
 install(TARGETS ThreadManager DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
@@ -87,5 +88,33 @@ target_link_libraries(test_ThreadManager
 )
 
 add_test(NAME test_ThreadManager COMMAND test_ThreadManager)
+
+#### FileDirUtils #####################################################################
+# Add the source files
+add_library(FileDirUtils STATIC
+    FileDirUtils/Src/FileDirUtils.cpp
+)
+
+target_include_directories(FileDirUtils PUBLIC
+    FileDirUtils/Src
+    Logger/Src
+)
+
+install(TARGETS FileDirUtils DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
+install(DIRECTORY 
+        FileDirUtils/Src/
+        DESTINATION 
+        include FILES_MATCHING PATTERN "*.h"
+)
+
+# Add the GTest executable
+add_executable(test_FileDirUtils FileDirUtils/GTest/test_FileDirUtils.cpp)
+target_link_libraries(test_FileDirUtils 
+    GTest::gtest 
+    GTest::gtest_main
+    FileDirUtils
+)
+
+add_test(NAME test_FileDirUtils COMMAND test_FileDirUtils)
 
 ########################################################################################
