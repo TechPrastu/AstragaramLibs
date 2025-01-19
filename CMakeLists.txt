@@ -6,6 +6,7 @@ project(AstragaramLibs)
 enable_testing()
 
 find_package(GTest REQUIRED CONFIG)
+find_package(protobuf REQUIRED)
 
 #### Logger ##################################################################
 
@@ -33,7 +34,6 @@ target_include_directories(IPCSocket PUBLIC
 )
 
 install(TARGETS IPCSocket DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
-# Install header files 
 install(DIRECTORY IPC/Src/ 
         DESTINATION 
         include FILES_MATCHING PATTERN "*.h"
@@ -117,4 +117,43 @@ target_link_libraries(test_FileDirUtils
 
 add_test(NAME test_FileDirUtils COMMAND test_FileDirUtils)
 
+#### Google Protocol Buffers (Protobuf) #####################################################################
+# Specify the path to generate the protobuf files 
+set(PROTO_SRC_DIR "${CMAKE_SOURCE_DIR}/GoogleProtocolBuffers/GTest/ProtosFiles") 
+
+# Generate protobuf files with specified output directory 
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
+    ${PROTO_SRC_DIR}/person.proto
+)
+
+# Print the generated files for debugging
+message(STATUS "Generated Protobuf PROTO_SRCS: ${PROTO_SRCS}")
+message(STATUS "Generated Protobuf PROTO_HDRS: ${PROTO_HDRS}")
+
+# Create a static library for the generated Protobuf files 
+add_library(personProto STATIC ${PROTO_SRCS})
+
+# Include the generated headers correctly
+get_filename_component(PROTO_HDRS_DIR ${PROTO_HDRS} DIRECTORY)
+target_include_directories(personProto PUBLIC ${CMAKE_BINARY_DIR})
+target_link_libraries(personProto protobuf::libprotobuf)
+
+# Add the source files to create static lib
+
+
+# Add the GTest for GoogleProtocolBuffers
+add_executable(test_ProtobufHelper GoogleProtocolBuffers/GTest/test_ProtobufHelper.cpp)
+
+target_include_directories(test_ProtobufHelper PUBLIC
+    GoogleProtocolBuffers/Src
+    ${PROTO_HDRS_DIR}
+)
+
+target_link_libraries(test_ProtobufHelper
+    GTest::gtest 
+    GTest::gtest_main
+    personProto
+)
+
+add_test(NAME test_ProtobufHelper COMMAND test_ProtobufHelper)
 ########################################################################################

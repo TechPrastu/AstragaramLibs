@@ -27,6 +27,7 @@ class AstragaramLibs(ConanFile):
     def build_requirements(self):
         self.tool_requires("cmake/3.30.5")
         self.test_requires("gtest/1.11.0")
+        self.requires("protobuf/3.18.1")
 
     def generate(self):
         tc = CMakeToolchain(self)
