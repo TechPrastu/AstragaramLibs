@@ -29,12 +29,15 @@
 #### First install conan in your linux development machine
 > - sudo apt-get update
 > - sudo apt install python3-pip
-> - sudo pip install conan==2.0.17
+> - sudo pip install conan==2.11.0
 
 #### Create default conan profile in your development machine
 > - conan profile detect --name default
 
-#### Now use following steps to compile code
+#### Following steps to compile code
 > - conan install . -u
 > - conan build . 
 > - conan export-pkg . 
+
+#### Following step to Create Conan Package
+> - conan create . --build=missing -u
