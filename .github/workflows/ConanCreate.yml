@@ -1,4 +1,4 @@
-name: CI | Conan build test
+name: CI | Create a Conan package for astragaram-libs
 
 on:
   push:
@@ -23,11 +23,3 @@ jobs:
     - name: Create a Conan package for astragaram-libs
       run: |
         conan create . --build=missing -u
-
-    - name: Install the requirements specified in a  conan recipe
-      run: |
-        conan install . --build missing -u
-    
-    - name: Installing dependencies and call the build() method.
-      run: |
-        conan build .
