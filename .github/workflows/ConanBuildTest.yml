@@ -1,4 +1,4 @@
-name: C++ CI
+name: CI | Conan Build Test
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
 
     - name: Conan Installation ...
       run: |
-        pip install conan==2.0.17
+        pip install conan==2.11.0
         conan profile detect
 
     - name: Install the requirements specified in a  conan recipe
@@ -27,7 +27,3 @@ jobs:
     - name: Installing dependencies and call the build() method.
       run: |
         conan build .
-
-    - name: Creating a package directly from pre-compiled binaries.
-      run: |
-        conan export-pkg .

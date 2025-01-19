@@ -21,13 +21,25 @@ def get_latest_tag():
 
 class AstragaramLibs(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
+    options = {"shared": [True, False], "fPIC": [True, False]}
+    default_options = {"shared": False, "fPIC": True}
     name = "astragaram-libs"
+    author = "Jigneshkumar Vadaviya"
+    url = "https://github.com/TechPrastu/AstragaramLibs"
     version = get_latest_tag()
+    scm = { 
+        "type": "git",
+        "url": "git@github.com:TechPrastu/AstragaramLibs.git",
+        "revision": "auto", 
+        }
+
+    # Sources are located in the same place as this recipe, copy them to the recipe
+    exports_sources = "CMakeLists.txt", "*"
 
     def build_requirements(self):
-        self.tool_requires("cmake/3.30.5")
-        self.test_requires("gtest/1.11.0")
-        self.requires("protobuf/3.18.1")
+        self.tool_requires("cmake/3.30.5")  # Build-time dependency
+        self.requires("gtest/1.15.0")       # Runtime dependency
+        self.requires("protobuf/3.18.1")    # Runtime dependency
 
     def generate(self):
         tc = CMakeToolchain(self)
@@ -54,8 +66,7 @@ class AstragaramLibs(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-        # Run all tests using ctest
-        self.run("ctest --output-on-failure")
+        cmake.test()
 
     def package(self):
         cmake = CMake(self)
@@ -66,5 +77,4 @@ class AstragaramLibs(ConanFile):
 
     def which(self, program):
         import shutil
-
         return shutil.which(program)

@@ -33,7 +33,7 @@ target_include_directories(IPCSocket PUBLIC
     Logger/Src
 )
 
-install(TARGETS IPCSocket DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
+install(TARGETS IPCSocket DESTINATION lib)
 install(DIRECTORY IPC/Src/ 
         DESTINATION 
         include FILES_MATCHING PATTERN "*.h"
@@ -71,7 +71,7 @@ target_include_directories(ThreadManager PUBLIC
     Logger/Src
 )
 
-install(TARGETS ThreadManager DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
+install(TARGETS ThreadManager DESTINATION lib)
 install(DIRECTORY ThreadManager/Src/ 
         DESTINATION 
         include FILES_MATCHING PATTERN "*.h"
@@ -100,7 +100,7 @@ target_include_directories(FileDirUtils PUBLIC
     Logger/Src
 )
 
-install(TARGETS FileDirUtils DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
+install(TARGETS FileDirUtils DESTINATION lib)
 install(DIRECTORY 
         FileDirUtils/Src/
         DESTINATION 
@@ -128,7 +128,7 @@ target_include_directories(StringUtils PUBLIC
     Logger/Src
 )
 
-install(TARGETS StringUtils DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
+install(TARGETS StringUtils DESTINATION lib)
 install(DIRECTORY 
         StringUtils/Src/
         DESTINATION 

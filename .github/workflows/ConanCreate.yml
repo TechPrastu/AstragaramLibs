@@ -1,0 +1,25 @@
+name: CI | Create a Conan package for astragaram-libs
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Conan Installation ...
+      run: |
+        pip install conan==2.11.0
+        conan profile detect
+
+    - name: Create a Conan package for astragaram-libs
+      run: |
+        conan create . --build=missing -u
