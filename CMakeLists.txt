@@ -117,6 +117,34 @@ target_link_libraries(test_FileDirUtils
 
 add_test(NAME test_FileDirUtils COMMAND test_FileDirUtils)
 
+#### StringUtils #####################################################################
+# Add the source files
+add_library(StringUtils STATIC
+    StringUtils/Src/StringUtils.cpp
+)
+
+target_include_directories(StringUtils PUBLIC
+    StringUtils/Src
+    Logger/Src
+)
+
+install(TARGETS StringUtils DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/lib)
+install(DIRECTORY 
+        StringUtils/Src/
+        DESTINATION 
+        include FILES_MATCHING PATTERN "*.h"
+)
+
+# Add the GTest executable
+add_executable(test_StringUtils StringUtils/GTest/test_StringUtils.cpp)
+target_link_libraries(test_StringUtils 
+    GTest::gtest 
+    GTest::gtest_main
+    StringUtils
+)
+
+add_test(NAME test_StringUtils COMMAND test_StringUtils)
+
 #### Google Protocol Buffers (Protobuf) #####################################################################
 # Specify the path to generate the protobuf files 
 set(PROTO_SRC_DIR "${CMAKE_SOURCE_DIR}/GoogleProtocolBuffers/GTest/ProtosFiles") 
