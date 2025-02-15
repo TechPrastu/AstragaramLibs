@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <boost/bind/bind.hpp>
 #include <stdexcept>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 unsigned short NetworkUtils::InCksum( unsigned short *addr, int len )
 {
@@ -442,7 +443,7 @@ void NetworkUtils::Pinger::HandleConnect( const boost::system::error_code &ec )
 
 void NetworkUtils::Pinger::CheckDeadline()
 {
-    Logger::Trace( "%s", __func__ );
+    Logger::Trace( "%s: %s:%d", __func__, ip_.c_str(), m_Port );
     try
     {
         if( m_Deadline.expires_at() <= boost::asio::deadline_timer::traits_type::now() )
@@ -450,8 +451,12 @@ void NetworkUtils::Pinger::CheckDeadline()
             m_Socket.close();
             m_Deadline.expires_at( boost::posix_time::pos_infin );
             Logger::Debug( "Ping deadline expired: %s:%d", ip_.c_str(), m_Port );
+            m_Deadline.cancel();
         }
-        m_Deadline.async_wait( boost::bind( &Pinger::CheckDeadline, this ) );
+        else
+        {
+            m_Deadline.async_wait( boost::bind( &Pinger::CheckDeadline, this ) );
+        }
     }
     catch( const std::exception &e )
     {

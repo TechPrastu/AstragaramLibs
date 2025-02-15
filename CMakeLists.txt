@@ -9,8 +9,10 @@ find_package(GTest REQUIRED CONFIG)
 find_package(Protobuf REQUIRED)
 find_package(Boost REQUIRED)
 
-message(STATUS "CMake Version: "${CMAKE_VERSION})
-message(STATUS "Protobuf Version: "${Protobuf_VERSION})
+message(STATUS "CMake Version       : " ${CMAKE_VERSION})
+message(STATUS "GTest Version       : " ${GTest_VERSION})
+message(STATUS "Protobuf Version    : " ${Protobuf_VERSION})
+message(STATUS "Boost Version       : " ${Boost_VERSION})
 
 #### Logger ##################################################################
 
