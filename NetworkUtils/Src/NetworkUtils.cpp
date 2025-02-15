@@ -41,7 +41,7 @@ std::string NetworkUtils::GetSubnet( const std::string &ip, const std::string &m
     char subnet[INET_ADDRSTRLEN];
     inet_ntop( AF_INET, &subnet_addr, subnet, sizeof( subnet ) );
 
-    LOG_INFO( "Calculated subnet: %s", subnet );
+    Logger::Info( "Calculated subnet: %s", subnet );
     return std::string( subnet );
 }
 
@@ -58,7 +58,7 @@ int NetworkUtils::GetCIDR( const std::string &mask )
         mask_long >>= 1;
     }
 
-    LOG_INFO( "Calculated CIDR: %d", cidr );
+    Logger::Info( "Calculated CIDR: %d", cidr );
     return cidr;
 }
 
@@ -71,7 +71,7 @@ bool NetworkUtils::IsHostAliveICMP( const std::string &ip )
     int sock = socket( AF_INET, SOCK_RAW, IPPROTO_ICMP );
     if( sock < 0 )
     {
-        LOG_ERROR( "Error creating socket" );
+        Logger::Error( "Error creating socket" );
         return false;
     }
 
@@ -87,7 +87,7 @@ bool NetworkUtils::IsHostAliveICMP( const std::string &ip )
 
     if( sendto( sock, &icmp_hdr, sizeof( icmp_hdr ), 0, ( struct sockaddr * )&addr, sizeof( addr ) ) <= 0 )
     {
-        LOG_ERROR( "Error sending ICMP echo" );
+        Logger::Error( "Error sending ICMP echo" );
         close( sock );
         return false;
     }
@@ -98,12 +98,12 @@ bool NetworkUtils::IsHostAliveICMP( const std::string &ip )
     if( recvfrom( sock, buffer, sizeof( buffer ), 0, ( struct sockaddr * )&recv_addr, &addr_len ) <= 0 )
     {
         close( sock );
-        LOG_WARN( "No response to ICMP echo from: %s", ip.c_str() );
+        Logger::Warn( "No response to ICMP echo from: %s", ip.c_str() );
         return false;
     }
 
     close( sock );
-    LOG_INFO( "Received ICMP echo reply from: %s", ip.c_str() );
+    Logger::Info( "Received ICMP echo reply from: %s", ip.c_str() );
     return true;
 }
 
@@ -134,14 +134,14 @@ std::vector<NetworkUtils::NetworkInterface> NetworkUtils::GetNetworkInterfaces()
                 iface.isUp = ifa->ifa_flags & IFF_UP;
                 result.push_back( iface );
 
-                LOG_INFO( "Found network interface: %s, IP: %s, Subnet Mask: %s, Is Up: %d", iface.name.c_str(), iface.ip4.c_str(), iface.subnetMask.c_str(), iface.isUp );
+                Logger::Info( "Found network interface: %s, IP: %s, Subnet Mask: %s, Is Up: %d", iface.name.c_str(), iface.ip4.c_str(), iface.subnetMask.c_str(), iface.isUp );
             }
         }
         freeifaddrs( interfaces );
     }
     else
     {
-        LOG_ERROR( "Error getting network interfaces" );
+        Logger::Error( "Error getting network interfaces" );
     }
 
     return result;
@@ -162,7 +162,7 @@ std::vector<NetworkInterfaceProto> NetworkUtils::GetNetworkInterfacesProto()
         proto.set_isup( iface.isUp );
         protoInterfaces.push_back( proto );
 
-        LOG_INFO( "Added network interface proto: %s", iface.name.c_str() );
+        Logger::Info( "Added network interface proto: %s", iface.name.c_str() );
     }
 
     return protoInterfaces;
@@ -177,11 +177,11 @@ bool NetworkUtils::IsHostAlive( const std::string &ip, const std::vector<int> &p
         io_context.run();
         if( pinger.IsAlive() )
         {
-            LOG_INFO( "Host is alive: %s:%d", ip.c_str(), port );
+            Logger::Info( "Host is alive: %s:%d", ip.c_str(), port );
             return true;
         }
     }
-    LOG_WARN( "Host is not alive: %s", ip.c_str() );
+    Logger::Warn( "Host is not alive: %s", ip.c_str() );
     return false;
 }
 
@@ -198,11 +198,11 @@ bool NetworkUtils::CheckURLReachable( const std::string &url, int timeout )
 
     if( ec )
     {
-        LOG_WARN( "URL is not reachable: %s", url.c_str() );
+        Logger::Warn( "URL is not reachable: %s", url.c_str() );
     }
     else
     {
-        LOG_INFO( "URL is reachable: %s", url.c_str() );
+        Logger::Info( "URL is reachable: %s", url.c_str() );
     }
 
     return !ec;
@@ -220,7 +220,7 @@ std::vector<std::string> NetworkUtils::FindAvailableDevices( const std::string &
             std::string target_ip = subnet + "." + std::to_string( i );
             if( NetworkUtils::IsHostAlive( target_ip, ports ) || NetworkUtils::IsHostAliveICMP( target_ip ) )
             {
-                LOG_INFO( "Device found: %s", target_ip.c_str() );
+                Logger::Info( "Device found: %s", target_ip.c_str() );
                 activeDevices.push_back( target_ip );
             }
         } );
@@ -255,11 +255,11 @@ std::vector<int> NetworkUtils::FindOpenPorts( const std::string &ip, int startPo
         if( !ec )
         {
             openPorts.push_back( port );
-            LOG_INFO( "Open port found: %s:%d", ip.c_str(), port );
+            Logger::Info( "Open port found: %s:%d", ip.c_str(), port );
         }
         else
         {
-            LOG_DEBUG( "Port closed: %s:%d", ip.c_str(), port );
+            Logger::Debug( "Port closed: %s:%d", ip.c_str(), port );
         }
 
         socket.close();
@@ -286,7 +286,7 @@ void NetworkUtils::Pinger::StartPing()
     boost::asio::ip::tcp::resolver::query query( ip_, std::to_string( m_Port ) );
     m_Resolver.async_resolve( query, boost::bind( &Pinger::HandleResolve, this,
                                                   boost::asio::placeholders::error, boost::asio::placeholders::iterator ) );
-    LOG_DEBUG( "Starting ping: %s:%d", ip_.c_str(), m_Port );
+    Logger::Debug( "Starting ping: %s:%d", ip_.c_str(), m_Port );
 }
 
 void NetworkUtils::Pinger::HandleResolve( const boost::system::error_code &ec, boost::asio::ip::tcp::resolver::iterator iterator )
@@ -298,7 +298,7 @@ void NetworkUtils::Pinger::HandleResolve( const boost::system::error_code &ec, b
     }
     else
     {
-        LOG_WARN( "Resolve failed: %s", ec.message().c_str() );
+        Logger::Warn( "Resolve failed: %s", ec.message().c_str() );
     }
 }
 
@@ -307,13 +307,13 @@ void NetworkUtils::Pinger::HandleConnect( const boost::system::error_code &ec )
     if( !ec )
     {
         m_Alive = true;
-        LOG_INFO( "Ping successful: %s:%d", ip_.c_str(), m_Port );
+        Logger::Info( "Ping successful: %s:%d", ip_.c_str(), m_Port );
         m_Deadline.cancel();
     }
     else
     {
         m_Alive = false;
-        LOG_WARN( "Ping failed: %s:%d", ip_.c_str(), m_Port );
+        Logger::Warn( "Ping failed: %s:%d", ip_.c_str(), m_Port );
     }
 }
 
@@ -323,7 +323,7 @@ void NetworkUtils::Pinger::CheckDeadline()
     {
         m_Socket.close();
         m_Deadline.expires_at( boost::posix_time::pos_infin );
-        LOG_DEBUG( "Ping deadline expired: %s:%d", ip_.c_str(), m_Port );
+        Logger::Debug( "Ping deadline expired: %s:%d", ip_.c_str(), m_Port );
     }
     m_Deadline.async_wait( boost::bind( &Pinger::CheckDeadline, this ) );
 }
