@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message NetworkInterfaceProto {
+    string name = 1;
+    string ip4 = 2;
+    string ip6 = 3;
+    string subnetMask = 4;
+    bool isUp = 5;
+}

@@ -1,12 +1,18 @@
 cmake_minimum_required(VERSION 3.3)
 
-message(INFO " Cmake Version : "${CMAKE_VERSION})
 project(AstragaramLibs)
+
 # Enable testing and add tests 
 enable_testing()
 
 find_package(GTest REQUIRED CONFIG)
-find_package(protobuf REQUIRED)
+find_package(Protobuf REQUIRED)
+find_package(Boost REQUIRED)
+
+message(STATUS "CMake Version       : " ${CMAKE_VERSION})
+message(STATUS "GTest Version       : " ${GTest_VERSION})
+message(STATUS "Protobuf Version    : " ${Protobuf_VERSION})
+message(STATUS "Boost Version       : " ${Boost_VERSION})
 
 #### Logger ##################################################################
 
@@ -20,7 +26,7 @@ target_include_directories(TestLogger PRIVATE
 
 install(FILES Logger/Src/Logger.h DESTINATION include)
 
-#### IPC #####################################################################
+#### IPC ######################################################################
 
 add_library(IPCSocket STATIC
     IPC/Src/ServerSocket.cpp
@@ -184,4 +190,55 @@ target_link_libraries(test_ProtobufHelper
 )
 
 add_test(NAME test_ProtobufHelper COMMAND test_ProtobufHelper)
+
+#### NetworkUtils #################################################################
+
+# Generate protobuf files
+protobuf_generate_cpp(NetworkInterface_PROTO_SRCS NetworkInterface_PROTO_HDRS ${CMAKE_SOURCE_DIR}/NetworkUtils/ProtoFiles/NetworkInterface.proto)
+# Print the generated files for debugging
+message(STATUS "Generated Protobuf NetworkInterface_PROTO_SRCS: ${NetworkInterface_PROTO_SRCS}")
+message(STATUS "Generated Protobuf NetworkInterface_PROTO_HDRS: ${NetworkInterface_PROTO_HDRS}")
+
+# Create a static library for the generated Protobuf files 
+add_library(NetworkInterfaceProto STATIC ${NetworkInterface_PROTO_SRCS})
+
+# Include the generated headers correctly
+get_filename_component(PNetworkInterface_PROTO_HDRS_DIR ${NetworkInterface_PROTO_HDRS} DIRECTORY)
+target_include_directories(NetworkInterfaceProto PUBLIC ${CMAKE_BINARY_DIR})
+target_link_libraries(NetworkInterfaceProto protobuf::libprotobuf)
+
+
+add_library(NetworkUtils STATIC
+    NetworkUtils/Src/NetworkUtils.cpp
+)
+
+target_include_directories(NetworkUtils PUBLIC
+    NetworkUtils/Src/
+    Logger/Src
+    ${PNetworkInterface_PROTO_HDRS_DIR}
+)
+
+target_link_libraries(NetworkUtils boost::boost protobuf::libprotobuf NetworkInterfaceProto)
+
+add_executable(ExampleNetworkUtils NetworkUtils/Example/ExampleNetworkUtils.cpp)
+target_link_libraries(ExampleNetworkUtils NetworkUtils)
+
+# Add the GTest for NetworkUtils
+add_executable(test_NetworkUtils NetworkUtils/GTest/test_NetworkUtils.cpp)
+
+target_include_directories(test_NetworkUtils PUBLIC
+    NetworkUtils/Src
+    ${PNetworkInterface_PROTO_HDRS_DIR}
+)
+
+target_link_libraries(test_NetworkUtils
+    GTest::gtest 
+    GTest::gtest_main
+    boost::boost
+    NetworkInterfaceProto
+    NetworkUtils
+)
+
+add_test(NAME test_NetworkUtils COMMAND test_ProtobufHelper)
+
 ########################################################################################
