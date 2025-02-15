@@ -27,7 +27,7 @@ public:
     };
 
     static std::vector<NetworkInterface> GetNetworkInterfaces();
-    static bool IsHostAlive( const std::string &ip, const std::vector<int> &ports, int timeout = 60 );
+    static bool IsHostAlive( const std::string &ip, const std::vector<int> &ports, int timeout = 10 );
     static bool IsHostAliveICMP( const std::string &ip );
     static bool CheckURLReachable( const std::string &url, int timeout = 10 );
     static std::vector<NetworkInterfaceProto> GetNetworkInterfacesProto();

@@ -218,6 +218,9 @@ target_include_directories(NetworkUtils PUBLIC
 
 target_link_libraries(NetworkUtils boost::boost protobuf::libprotobuf NetworkInterfaceProto)
 
+add_executable(ExampleNetworkUtils NetworkUtils/Example/ExampleNetworkUtils.cpp)
+target_link_libraries(ExampleNetworkUtils NetworkUtils)
+
 # Add the GTest for NetworkUtils
 add_executable(test_NetworkUtils NetworkUtils/GTest/test_NetworkUtils.cpp)
 
