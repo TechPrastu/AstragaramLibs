@@ -237,6 +237,37 @@ std::vector<std::string> NetworkUtils::FindAvailableDevices( const std::string &
     return activeDevices;
 }
 
+std::vector<int> NetworkUtils::FindOpenPorts( const std::string &ip, int startPort, int endPort, int timeout )
+{
+    std::vector<int> openPorts;
+    boost::asio::io_context io_context;
+
+    for( int port = startPort; port <= endPort; ++port )
+    {
+        boost::asio::ip::tcp::resolver resolver( io_context );
+        boost::asio::ip::tcp::resolver::query query( ip, std::to_string( port ) );
+        boost::asio::ip::tcp::resolver::iterator iterator = resolver.resolve( query );
+
+        boost::asio::ip::tcp::socket socket( io_context );
+        boost::system::error_code ec;
+        socket.connect( *iterator, ec );
+
+        if( !ec )
+        {
+            openPorts.push_back( port );
+            LOG_INFO( "Open port found: %s:%d", ip.c_str(), port );
+        }
+        else
+        {
+            LOG_DEBUG( "Port closed: %s:%d", ip.c_str(), port );
+        }
+
+        socket.close();
+    }
+
+    return openPorts;
+}
+
 NetworkUtils::Pinger::Pinger( boost::asio::io_context &io_context, const std::string &ip, int port, int timeout )
     : m_Resolver( io_context ), m_Socket( io_context ), m_Deadline( io_context ), ip_( ip ), m_Port( port ), m_Timeout( timeout ), m_Alive( false )
 {

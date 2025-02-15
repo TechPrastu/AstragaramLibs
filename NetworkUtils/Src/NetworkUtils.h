@@ -32,6 +32,7 @@ public:
     static bool CheckURLReachable( const std::string &url, int timeout = 10 );
     static std::vector<NetworkInterfaceProto> GetNetworkInterfacesProto();
     static std::vector<std::string> FindAvailableDevices( const std::string &subnet, int cidr, const std::vector<int> &ports );
+    static std::vector<int> FindOpenPorts( const std::string &ip, int startPort, int endPort, int timeout );
 
 private:
     static std::string GetSubnet( const std::string &ip, const std::string &mask );

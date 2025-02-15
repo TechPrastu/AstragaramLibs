@@ -41,6 +41,26 @@ TEST( NetworkUtilsTest, FindAvailableDevices )
     ASSERT_FALSE( devices.empty() ) << "There should be at least one active device in the subnet";
 }
 
+// Test for finding open ports on a given IP address
+TEST( NetworkUtilsTest, FindOpenPorts )
+{
+    std::string ip = "127.0.0.1"; // Use localhost for testing
+    int startPort = 8000;
+    int endPort = 8100;
+    int timeout = 1; // 1 second timeout
+
+    std::vector<int> openPorts = NetworkUtils::FindOpenPorts( ip, startPort, endPort, timeout );
+
+    // Validate the results
+    for( int port : openPorts )
+    {
+        std::cout << "Open port found: " << port << std::endl;
+    }
+
+    // Example assertion, adapt as necessary for your test environment
+    EXPECT_GT( openPorts.size(), 0 ) << "No open ports found in the specified range.";
+}
+
 int main( int argc, char **argv )
 {
     ::testing::InitGoogleTest( &argc, argv );
