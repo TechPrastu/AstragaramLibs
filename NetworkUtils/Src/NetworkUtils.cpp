@@ -106,6 +106,7 @@ bool NetworkUtils::IsHostAliveICMP( const std::string &ip )
         int sock = socket( AF_INET, SOCK_RAW, IPPROTO_ICMP );
         if( sock < 0 )
         {
+            Logger::Error( "Error creating socket: %s", strerror( errno ) );
             throw std::runtime_error( "Error creating socket" );
         }
 
@@ -222,6 +223,60 @@ std::vector<NetworkInterfaceProto> NetworkUtils::GetNetworkInterfacesProto()
     {
         Logger::Error( "Exception in GetNetworkInterfacesProto: %s", e.what() );
         return std::vector<NetworkInterfaceProto>();
+    }
+}
+
+// Alternative method: Using ping command
+bool NetworkUtils::IsHostAlivePing( const std::string &ip )
+{
+    Logger::Trace( "%s: ip:%s", __func__, ip.c_str() );
+    try
+    {
+        std::array<char, 128> buffer;
+        std::string result;
+        std::string command = "ping -c 1 " + ip;
+
+        std::unique_ptr<FILE, decltype( &pclose )> pipe( popen( command.c_str(), "r" ), pclose );
+        if( !pipe )
+        {
+            throw std::runtime_error( "popen() failed!" );
+        }
+
+        while( fgets( buffer.data(), buffer.size(), pipe.get() ) != nullptr )
+        {
+            result += buffer.data();
+        }
+
+        return result.find( "1 packets transmitted, 1 received" ) != std::string::npos;
+    }
+    catch( const std::exception &e )
+    {
+        Logger::Error( "Exception in IsHostAlivePing: %s", e.what() );
+        return false;
+    }
+}
+
+// Combined IsHostAlive method
+bool NetworkUtils::IsHostAlive( const std::string &ip, int timeout )
+{
+    Logger::Trace( "%s: ip:%s, timeout:%d", __func__, ip.c_str(), timeout );
+
+    if( IsHostAliveICMP( ip ) )
+    {
+        return true;
+    }
+    else if( IsHostAlivePing( ip ) )
+    {
+        return true;
+    }
+    else if( CheckURLReachable( ip, timeout ) )
+    {
+        return true;
+    }
+    else
+    {
+        Logger::Warn( "Host is not alive: %s", ip.c_str() );
+        return false;
     }
 }
 
