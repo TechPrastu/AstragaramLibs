@@ -92,7 +92,13 @@ class AstragaramLibs(ConanFile):
         cmake.configure()
         cmake.verbose = True  # Enable verbose output
         cmake.build()
-        cmake.test()
+        # Run tests and check the return code
+        try:
+            cmake.test()
+        except Exception as e:
+            self.output.error("Initial test run failed. Rerunning failed tests with detailed output.")
+            self.run("ctest --rerun-failed --output-on-failure")
+            raise 
 
     def package(self):
         cmake = CMake(self)
