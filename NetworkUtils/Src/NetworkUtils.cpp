@@ -107,7 +107,7 @@ bool NetworkUtils::IsHostAliveICMP( const std::string &ip )
         if( sock < 0 )
         {
             Logger::Error( "Error creating socket: %s", strerror( errno ) );
-            throw std::runtime_error( "Error creating socket" );
+            throw std::runtime_error( "Error creating socket: " + std::string( strerror( errno ) ) );
         }
 
         struct icmp icmp_hdr;

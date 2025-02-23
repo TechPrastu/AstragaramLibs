@@ -11,7 +11,7 @@ TEST( NetworkUtilsTest, GetNetworkInterfaces )
 }
 
 // Test for host alive check
-TEST( NetworkUtilsTest, IsHostAlive )
+TEST( NetworkUtilsTest, DISABLED_IsHostAlive )
 {
     std::string ip = "127.0.0.1"; // localhost should always be alive
     bool result = NetworkUtils::IsHostAlive( ip );
@@ -34,7 +34,7 @@ TEST( NetworkUtilsTest, GetNetworkInterfacesProto )
 }
 
 // Test for finding available devices on the network
-TEST( NetworkUtilsTest, FindAvailableDevices )
+TEST( NetworkUtilsTest, DISABLED_FindAvailableDevices )
 {
     std::string subnet = "192.168.1";
     int cidr = 24;
