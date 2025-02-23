@@ -3,7 +3,6 @@ from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.build import can_run
 
-
 def get_latest_tag():
     try:
         # Get the latest tag using os.popen and os.system
@@ -18,7 +17,6 @@ def get_latest_tag():
     except Exception as e:
         return "1.0.0"  # Fallback version in case of an error
 
-
 class AstragaramLibs(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
@@ -31,10 +29,36 @@ class AstragaramLibs(ConanFile):
         "type": "git",
         "url": "git@github.com:TechPrastu/AstragaramLibs.git",
         "revision": "auto", 
-        }
+    }
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = "CMakeLists.txt", "*"
+    exports_sources = [
+        "CMakeLists.txt",
+        "*",
+        "!build/*",
+        "!.vsconan/*",
+        "!.vscode/*",
+        "!*.d",
+        "!*.slo",
+        "!*.lo",
+        "!*.o",
+        "!*.obj",
+        "!*.gch",
+        "!*.pch",
+        "!*.so",
+        "!*.dylib",
+        "!*.dll",
+        "!*.mod",
+        "!*.smod",
+        "!*.lai",
+        "!*.la",
+        "!*.a",
+        "!*.lib",
+        "!*.exe",
+        "!*.out",
+        "!*.app",
+        "!CMakeUserPresets.json"
+    ]
 
     def build_requirements(self):
         self.tool_requires("cmake/3.30.5")
@@ -52,7 +76,7 @@ class AstragaramLibs(ConanFile):
         astyle_path = self.which("astyle")
         if astyle_path:
             self.output.info("Running astyle to format source files")
-            os.chdir(self.source_folder)  # Folder change to Source
+            os.chdir(self.source_folder)  # Change to Source folder
             os.system(
                 'find . -name "*.cpp" -o -name "*.h" | xargs astyle --options=none --indent=spaces=4 --style=break --indent-preprocessor --pad-oper --pad-paren-in  --unpad-paren --convert-tabs --preserve-date --formatted --min-conditional-indent=0 --max-instatement-indent=80 --lineend=linux --suffix=none'
             )
@@ -66,8 +90,15 @@ class AstragaramLibs(ConanFile):
         self.run_astyle()
         cmake = CMake(self)
         cmake.configure()
+        cmake.verbose = True  # Enable verbose output
         cmake.build()
-        cmake.test()
+        # Run tests and check the return code
+        try:
+            cmake.test()
+        except Exception as e:
+            self.output.error("Initial test run failed. Rerunning failed tests with detailed output.")
+            self.run("ctest --rerun-failed --output-on-failure")
+            raise 
 
     def package(self):
         cmake = CMake(self)
