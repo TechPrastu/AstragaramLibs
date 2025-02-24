@@ -10,20 +10,26 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-    - name: Conan Installation ...
-      run: |
-        pip install conan==2.11.0
-        conan profile detect
-
-    - name: Install the requirements specified in a  conan recipe
-      run: |
-        conan install . --build missing -u
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
     
-    - name: Installing dependencies and call the build() method.
+    - name: Install Conan
       run: |
-        conan build .
+        python -m pip install --upgrade pip
+        pip install conan==2.11.0
+
+    - name: Detect Conan profile
+      run: conan profile detect
+
+    - name: Install the requirements specified in a Conan recipe
+      run: conan install . --build missing -u
+    
+    - name: Build using Conan
+      run: conan build .
