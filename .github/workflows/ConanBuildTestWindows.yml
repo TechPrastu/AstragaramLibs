@@ -1,0 +1,29 @@
+name: CI | Conan Build Test On Windows
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Conan Installation ...
+      run: |
+        pip install conan==2.11.0
+        conan profile detect
+
+    - name: Install the requirements specified in a  conan recipe
+      run: |
+        conan install . --build missing -u
+    
+    - name: Installing dependencies and call the build() method.
+      run: |
+        conan build .

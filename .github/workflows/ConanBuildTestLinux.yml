@@ -1,4 +1,4 @@
-name: CI | Conan Build Test
+name: CI | Conan Build Test On Linux
 
 on:
   push:
