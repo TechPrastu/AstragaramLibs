@@ -10,7 +10,7 @@ def get_latest_tag():
         # Determine the appropriate command based on the platform
         if sys.platform.startswith('win'):
             command = 'git describe --tags $(git rev-list --tags --max-count=1)'
-        else:
+        else:  # For Linux and others
             command = 'git describe --tags `git rev-list --tags --max-count=1`'
 
         # Execute the command using subprocess
@@ -22,7 +22,6 @@ def get_latest_tag():
         return latest_tag
     except Exception as e:
         return "1.0.0"  # Fallback version in case of an error
-
 
 class AstragaramLibs(ConanFile):
     settings = "os", "compiler", "build_type", "arch"

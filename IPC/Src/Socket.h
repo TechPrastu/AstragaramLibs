@@ -3,13 +3,21 @@
 #ifndef Socket_class
 #define Socket_class
 
-#include <stdio.h>
-#include <sys/un.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+#include <io.h>
+#else
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+#endif
+
+#include <stdio.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <unistd.h>
 #include <string>
 #include <arpa/inet.h>
 #include <iostream>

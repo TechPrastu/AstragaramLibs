@@ -1,10 +1,18 @@
 #ifndef NETWORKUTILS_H
 #define NETWORKUTILS_H
 
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+#pragma comment(lib, "iphlpapi.lib")
+#else
+#include <ifaddrs.h>
+#endif
+
 #include <string>
 #include <vector>
 #include <boost/asio.hpp>
-#include <ifaddrs.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/ip_icmp.h>

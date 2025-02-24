@@ -3,11 +3,17 @@
 #ifndef HEADER_FILE_NAME
 #define HEADER_FILE_NAME
 
+#ifdef _WIN32
+#include <windows.h>
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include <mutex>
 #include <ctime>
 #include <iostream>
-#include <unistd.h> // For getpid()
 
 #define LOG_TRACE(Message, ...) (Logger::Trace(__LINE__, __FILE__, Message, ##__VA_ARGS__))
 #define LOG_DEBUG(Message, ...) (Logger::Debug(__LINE__, __FILE__, Message, ##__VA_ARGS__))
