@@ -4,7 +4,7 @@
 
 int main()
 {
-    Logger::SetPriority( LogLevel::INFO );
+    Logger::SetPriority( LogLevel::LL_INFO );
     Logger::Info( "------------------- Example usage of GetNetworkInterfaces -----------------------" );
     // Example usage of GetNetworkInterfaces
     std::vector<NetworkUtils::NetworkInterface> interfaces = NetworkUtils::GetNetworkInterfaces();

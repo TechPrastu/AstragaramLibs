@@ -82,23 +82,23 @@ generate_protobuf(protolib static FILES
 # Create a single static library
 add_library(AstragaramLibs STATIC 
     Logger/Src/Logger.cpp
-    IPC/Src/ServerSocket.cpp
-    IPC/Src/ClientSocket.cpp
-    IPC/Src/Socket.cpp
+    # IPC/Src/ServerSocket.cpp
+    # IPC/Src/ClientSocket.cpp
+    # IPC/Src/Socket.cpp
     ThreadManager/Src/ThreadManager.cpp
     FileDirUtils/Src/FileDirUtils.cpp
-    StringUtils/Src/StringUtils.cpp
-    NetworkUtils/Src/NetworkUtils.cpp
+    # StringUtils/Src/StringUtils.cpp
+    # NetworkUtils/Src/NetworkUtils.cpp
 )
 
 target_include_directories(AstragaramLibs PUBLIC
     Logger/Src
-    IPC/Src
+    # IPC/Src
     ThreadManager/Src
     FileDirUtils/Src
-    StringUtils/Src
-    ${CMAKE_BINARY_DIR}/ProtoFiles
-    NetworkUtils/Src
+    # StringUtils/Src
+    # ${CMAKE_BINARY_DIR}/ProtoFiles
+    # NetworkUtils/Src
 )
 
 target_link_libraries(AstragaramLibs
@@ -112,29 +112,32 @@ target_link_libraries(AstragaramLibs
 
 install(TARGETS AstragaramLibs DESTINATION lib)
 install(FILES Logger/Src/Logger.h DESTINATION include)
-install(DIRECTORY IPC/Src/ DESTINATION include FILES_MATCHING PATTERN "*.h")
+# install(DIRECTORY IPC/Src/ DESTINATION include FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY ThreadManager/Src/ DESTINATION include FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY FileDirUtils/Src/ DESTINATION include FILES_MATCHING PATTERN "*.h")
-install(DIRECTORY StringUtils/Src/ DESTINATION include FILES_MATCHING PATTERN "*.h")
+# install(DIRECTORY StringUtils/Src/ DESTINATION include FILES_MATCHING PATTERN "*.h")
 
 #### Executables and Tests ###################################################
 add_executable(TestLogger Logger/Src/Logger.cpp)
 target_link_libraries(TestLogger AstragaramLibs)
 
-add_executable(simple_server IPC/simple_server_main.cpp)
-target_link_libraries(simple_server AstragaramLibs)
+# add_executable(simple_server IPC/simple_server_main.cpp)
+# target_link_libraries(simple_server AstragaramLibs)
 
-add_executable(simple_client IPC/simple_client_main.cpp)
-target_link_libraries(simple_client AstragaramLibs)
+# add_executable(simple_client IPC/simple_client_main.cpp)
+# target_link_libraries(simple_client AstragaramLibs)
 
 add_executable(example_thread ThreadManager/example_thread.cpp)
 target_link_libraries(example_thread AstragaramLibs)
 
+add_executable(example_misc MiscUtils/MiscUtils.cpp)
+target_link_libraries(example_misc AstragaramLibs)
+
 # Using the custom function to add tests
-add_custom_test(test_Socket IPC/GTest/test_Socket.cpp)
-add_custom_test(test_sum GTest/test.cpp)
+# add_custom_test(test_Socket IPC/GTest/test_Socket.cpp)
+# add_custom_test(test_sum GTest/test.cpp)
 add_custom_test(test_ThreadManager ThreadManager/GTest/test_ThreadManager.cpp)
 add_custom_test(test_FileDirUtils FileDirUtils/GTest/test_FileDirUtils.cpp)
-add_custom_test(test_StringUtils StringUtils/GTest/test_StringUtils.cpp)
-add_custom_test(test_ProtobufHelper GoogleProtocolBuffers/GTest/test_ProtobufHelper.cpp)
-add_custom_test(test_NetworkUtils NetworkUtils/GTest/test_NetworkUtils.cpp)
+# add_custom_test(test_StringUtils StringUtils/GTest/test_StringUtils.cpp)
+# add_custom_test(test_ProtobufHelper GoogleProtocolBuffers/GTest/test_ProtobufHelper.cpp)
+# add_custom_test(test_NetworkUtils NetworkUtils/GTest/test_NetworkUtils.cpp)

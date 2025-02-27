@@ -1,7 +1,5 @@
-// Implementation of the Socket class.
 #include "Socket.h"
 #include "string.h"
-#include <string.h>
 #include <errno.h>
 #include <fcntl.h>
 #include "Logger.h"
@@ -20,7 +18,11 @@ Socket::~Socket()
 
     if( is_valid() )
     {
+#ifdef _WIN32
+        ::closesocket( m_sock );
+#else
         ::close( m_sock );
+#endif
     }
 }
 
@@ -30,14 +32,14 @@ bool Socket::create()
 
     m_sock = socket( AF_INET, SOCK_STREAM, 0 );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
 
     // TIME_WAIT - argh
     int on = 1;
-    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, ( const char* ) &on, sizeof( on ) ) == -1 )
+    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, ( const char * )&on, sizeof( on ) ) == -1 )
     {
         return false;
     }
@@ -47,20 +49,17 @@ bool Socket::create()
 
 bool Socket::create( const std::string serverPath )
 {
-    Logger::Trace( "%s: serverPath:%s", __func__, serverPath );
+    Logger::Trace( "%s: serverPath:%s", __func__, serverPath.c_str() );
 
     m_sock = socket( AF_UNIX, SOCK_STREAM, 0 );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
 
-    //    if( setsockopt(m_sock, SOL_SOCKET, SO_RCVLOWAT, (char *)&BUFFER_LENGTH, sizeof(BUFFER_LENGTH)) == -1)
-    //        return false;
-
     int on = 1;
-    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, ( const char* ) &on, sizeof( on ) ) == -1 )
+    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, ( const char * )&on, sizeof( on ) ) == -1 )
     {
         return false;
     }
@@ -72,7 +71,7 @@ bool Socket::bind( const int port )
 {
     Logger::Trace( "%s: port:%d", __func__, port );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
@@ -81,7 +80,7 @@ bool Socket::bind( const int port )
     m_addr.sin_addr.s_addr = INADDR_ANY;
     m_addr.sin_port = htons( port );
 
-    int bind_return = ::bind( m_sock, ( struct sockaddr * ) &m_addr, sizeof( m_addr ) );
+    int bind_return = ::bind( m_sock, ( struct sockaddr * )&m_addr, sizeof( m_addr ) );
 
     if( bind_return == -1 )
     {
@@ -93,9 +92,9 @@ bool Socket::bind( const int port )
 
 bool Socket::bind( const std::string serverPath )
 {
-    Logger::Trace( "%s: serverPath:%s", __func__, serverPath );
+    Logger::Trace( "%s: serverPath:%s", __func__, serverPath.c_str() );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
@@ -117,13 +116,12 @@ bool Socket::listen() const
 {
     Logger::Trace( "%s", __func__ );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
 
     int listen_return = ::listen( m_sock, MAXCONNECTIONS );
-
 
     if( listen_return == -1 )
     {
@@ -133,13 +131,12 @@ bool Socket::listen() const
     return true;
 }
 
-
-bool Socket::accept( Socket& new_socket ) const
+bool Socket::accept( Socket &new_socket ) const
 {
     Logger::Trace( "%s", __func__ );
 
     int addr_length = sizeof( m_addr );
-    new_socket.m_sock = ::accept( m_sock, ( sockaddr * ) &m_addr, ( socklen_t * ) &addr_length );
+    new_socket.m_sock = ::accept( m_sock, ( sockaddr * )&m_addr, ( socklen_t * )&addr_length );
 
     if( new_socket.m_sock <= 0 )
     {
@@ -151,12 +148,16 @@ bool Socket::accept( Socket& new_socket ) const
     }
 }
 
-
 bool Socket::send( const std::string sendData ) const
 {
-    Logger::Trace( "%s: sendData:%s", __func__, sendData );
+    Logger::Trace( "%s: sendData:%s", __func__, sendData.c_str() );
 
+#ifdef _WIN32
+    int status = ::send( m_sock, sendData.c_str(), sendData.size(), 0 );
+#else
     int status = ::send( m_sock, sendData.c_str(), sendData.size(), MSG_NOSIGNAL );
+#endif
+
     if( status == -1 )
     {
         return false;
@@ -167,12 +168,11 @@ bool Socket::send( const std::string sendData ) const
     }
 }
 
-
-int Socket::recv( std::string& recvData ) const
+int Socket::recv( std::string &recvData ) const
 {
-    Logger::Trace( "%s: recvData:%s", __func__, recvData );
+    Logger::Trace( "%s: recvData:%s", __func__, recvData.c_str() );
 
-    char buf [ MAXRECV + 1 ];
+    char buf[MAXRECV + 1];
 
     recvData = "";
 
@@ -198,9 +198,9 @@ int Socket::recv( std::string& recvData ) const
 
 bool Socket::connect( const std::string host, const int port )
 {
-    Logger::Trace( "%s: host:%s, port:%s", __func__, host, port );
+    Logger::Trace( "%s: host:%s, port:%d", __func__, host.c_str(), port );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
@@ -215,7 +215,7 @@ bool Socket::connect( const std::string host, const int port )
         return false;
     }
 
-    status = ::connect( m_sock, ( sockaddr * ) &m_addr, sizeof( m_addr ) );
+    status = ::connect( m_sock, ( sockaddr * )&m_addr, sizeof( m_addr ) );
 
     if( status == 0 )
     {
@@ -229,9 +229,9 @@ bool Socket::connect( const std::string host, const int port )
 
 bool Socket::connect( const std::string serverPath )
 {
-    Logger::Trace( "%s: serverPath:%s", __func__, serverPath );
+    Logger::Trace( "%s: serverPath:%s", __func__, serverPath.c_str() );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
@@ -274,5 +274,4 @@ void Socket::set_non_blocking( const bool b )
     }
 
     fcntl( m_sock, F_SETFL, opts );
-
 }

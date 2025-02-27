@@ -6,7 +6,7 @@ int main()
 {
     const char* name = "User";
 //  Logger::EnableFileOutput();
-    Logger::SetPriority( LogLevel::INFO );
+    Logger::SetPriority( LogLevel::LL_INFO );
     LOG_INFO( "Hello %s", name );
 
     LOG_CRITICAL( "OH NO!", name );
