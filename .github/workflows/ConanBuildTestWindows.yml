@@ -26,10 +26,13 @@ jobs:
         pip install conan==2.11.0
 
     - name: Detect Conan profile
-      run: conan profile detect
+      run: |
+        conan profile detect
 
     - name: Install the requirements specified in a Conan recipe
-      run: conan install . --build missing -u
+      run: |
+        conan install . -of buildwindows --build missing -u
     
     - name: Build using Conan
-      run: conan build .
+      run: |
+        conan build . -of buildwindows

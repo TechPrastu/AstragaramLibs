@@ -22,8 +22,8 @@ jobs:
 
     - name: Install the requirements specified in a  conan recipe
       run: |
-        conan install . --build missing -u
+        conan install . -of buildLinux --build missing -u 
     
     - name: Installing dependencies and call the build() method.
       run: |
-        conan build .
+        conan build . -of buildLinux

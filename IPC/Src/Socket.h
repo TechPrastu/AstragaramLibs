@@ -1,7 +1,5 @@
-// Definition of the Socket class
-
-#ifndef Socket_class
-#define Socket_class
+#ifndef SOCKET_H
+#define SOCKET_H
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -13,13 +11,13 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 #endif
 
 #include <stdio.h>
-#include <netinet/in.h>
-#include <netdb.h>
 #include <string>
-#include <arpa/inet.h>
 #include <iostream>
 
 const int BUFFER_LENGTH = 250;
@@ -39,15 +37,15 @@ public:
     bool bind( const int port );
     bool bind( const std::string );
     bool listen() const;
-    bool accept( Socket& ) const;
+    bool accept( Socket & ) const;
 
     // Client initialization
     bool connect( const std::string host, const int port );
     bool connect( const std::string );
 
-    // Data Transimission
+    // Data Transmission
     bool send( const std::string ) const;
-    int recv( std::string& ) const;
+    int recv( std::string & ) const;
 
     void set_non_blocking( const bool );
 
@@ -57,10 +55,13 @@ public:
     }
 
 private:
-
     int m_sock;
     sockaddr_in m_addr;
-    sockaddr_un serveraddr;
+#ifdef _WIN32
+    sockaddr_in serveraddr;  // Windows uses sockaddr_in for server addresses
+#else
+    sockaddr_un serveraddr;  // Unix-based systems use sockaddr_un for server addresses
+#endif
 };
 
-#endif
+#endif // SOCKET_H

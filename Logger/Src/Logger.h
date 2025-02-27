@@ -24,13 +24,18 @@
 
 enum LogLevel
 {
-    TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL
+    LL_TRACE,        // LogLevel Trace
+    LL_DEBUG,        // LogLevel Debug
+    LL_INFO,         // LogLevel Information
+    LL_WARN,         // LogLevel Warning
+    LL_ERROR,        // LogLevel Error
+    LL_CRITICAL      // LogLevel Critical
 };
 
 class Logger
 {
 private:
-    LogLevel priority = INFO;
+    LogLevel priority = LL_INFO;
     std::mutex log_mutex;
     const char* filepath = 0;
     FILE* file = 0;
@@ -58,73 +63,73 @@ public:
     template<typename... Args>
     static void Trace( const char* message, Args... args )
     {
-        get_instance().log( "Trace", TRACE, message, std::forward<Args>( args )... );
+        get_instance().log( "Trace", LL_TRACE, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Debug( const char* message, Args... args )
     {
-        get_instance().log( "Debug", DEBUG, message, std::forward<Args>( args )... );
+        get_instance().log( "Debug", LL_DEBUG, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Info( const char* message, Args... args )
     {
-        get_instance().log( "Info", INFO, message, std::forward<Args>( args )... );
+        get_instance().log( "Info", LL_INFO, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Warn( const char* message, Args... args )
     {
-        get_instance().log( "Warn", WARN, message, std::forward<Args>( args )... );
+        get_instance().log( "Warn", LL_WARN, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Error( const char* message, Args... args )
     {
-        get_instance().log( "Error", ERROR, message, std::forward<Args>( args )... );
+        get_instance().log( "Error", LL_ERROR, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Critical( const char* message, Args... args )
     {
-        get_instance().log( "Critical", CRITICAL, message, std::forward<Args>( args )... );
+        get_instance().log( "Critical", LL_CRITICAL, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Trace( int line, const char* source_file, const char* message, Args... args )
     {
-        get_instance().log( line, source_file, "Trace ", TRACE, message, std::forward<Args>( args )... );
+        get_instance().log( line, source_file, "Trace", LL_TRACE, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Debug( int line, const char* source_file, const char* message, Args... args )
     {
-        get_instance().log( line, source_file, "Debug", DEBUG, message, std::forward<Args>( args )... );
+        get_instance().log( line, source_file, "Debug", LL_DEBUG, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Info( int line, const char* source_file, const char* message, Args... args )
     {
-        get_instance().log( line, source_file, "Info", INFO, message, std::forward<Args>( args )... );
+        get_instance().log( line, source_file, "Info", LL_INFO, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Warn( int line, const char* source_file, const char* message, Args... args )
     {
-        get_instance().log( line, source_file, "Warn", WARN, message, std::forward<Args>( args )... );
+        get_instance().log( line, source_file, "Warn", LL_WARN, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Error( int line, const char* source_file, const char* message, Args... args )
     {
-        get_instance().log( line, source_file, "Error", ERROR, message, std::forward<Args>( args )... );
+        get_instance().log( line, source_file, "Error", LL_ERROR, message, std::forward<Args>( args )... );
     }
 
     template<typename... Args>
     static void Critical( int line, const char* source_file, const char* message, Args... args )
     {
-        get_instance().log( line, source_file, "Critical", CRITICAL, message, std::forward<Args>( args )... );
+        get_instance().log( line, source_file, "Critical", LL_CRITICAL, message, std::forward<Args>( args )... );
     }
 
 private:
@@ -150,18 +155,29 @@ private:
         if( priority <= message_priority )
         {
             std::time_t current_time = std::time( 0 );
-            std::tm* timestamp = std::localtime( &current_time );
             char buffer[80];
+#ifdef _WIN32
+            std::tm timestamp;
+            localtime_s( &timestamp, &current_time );
+            strftime( buffer, 80, "%c", &timestamp );
+            std::lock_guard<std::mutex> lock( log_mutex );
+            printf( "%s [%s][%lu]: ", buffer, message_priority_str, GetCurrentProcessId() );
+#else
+            std::tm* timestamp = std::localtime( &current_time );
             strftime( buffer, 80, "%c", timestamp );
-
             std::scoped_lock lock( log_mutex );
             printf( "%s [%s][%d]: ", buffer, message_priority_str, getpid() );
+#endif
             printf( message, std::forward<Args>( args )... );
             printf( "\n" );
 
             if( file )
             {
+#ifdef _WIN32
+                fprintf( file, "%s [%s][%lu]: ", buffer, message_priority_str, GetCurrentProcessId() );
+#else
                 fprintf( file, "%s [%s][%d]: ", buffer, message_priority_str, getpid() );
+#endif
                 fprintf( file, message, std::forward<Args>( args )... );
                 fprintf( file, "\n" );
             }
@@ -174,18 +190,29 @@ private:
         if( priority <= message_priority )
         {
             std::time_t current_time = std::time( 0 );
-            std::tm* timestamp = std::localtime( &current_time );
             char buffer[80];
+#ifdef _WIN32
+            std::tm timestamp;
+            localtime_s( &timestamp, &current_time );
+            strftime( buffer, 80, "%c", &timestamp );
+            std::lock_guard<std::mutex> lock( log_mutex );
+            printf( "%s [%s][%lu] %s:%d: ", buffer, message_priority_str, GetCurrentProcessId(), source_file, line_number );
+#else
+            std::tm* timestamp = std::localtime( &current_time );
             strftime( buffer, 80, "%c", timestamp );
-
             std::scoped_lock lock( log_mutex );
             printf( "%s [%s][%d] %s:%d: ", buffer, message_priority_str, getpid(), source_file, line_number );
+#endif
             printf( message, std::forward<Args>( args )... );
             printf( "\n" );
 
             if( file )
             {
+#ifdef _WIN32
+                fprintf( file, "%s [%s][%lu] %s:%d: ", buffer, message_priority_str, GetCurrentProcessId(), source_file, line_number );
+#else
                 fprintf( file, "%s [%s][%d] %s:%d: ", buffer, message_priority_str, getpid(), source_file, line_number );
+#endif
                 fprintf( file, message, std::forward<Args>( args )... );
                 fprintf( file, "\n" );
             }
@@ -195,14 +222,22 @@ private:
     bool enable_file_output()
     {
         free_file();
-
+#ifdef _WIN32
+        errno_t err = fopen_s( &file, filepath, "a" );
+        if( err != 0 )
+        {
+            char errMsg[256];
+            strerror_s( errMsg, sizeof( errMsg ), err );
+            printf( "Error opening file: %s\n", errMsg );
+            return false;
+        }
+#else
         file = std::fopen( filepath, "a" );
-
         if( file == 0 )
         {
             return false;
         }
-
+#endif
         return true;
     }
 
