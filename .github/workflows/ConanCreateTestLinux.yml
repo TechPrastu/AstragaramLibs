@@ -1,4 +1,4 @@
-name: CI | Create a Conan package for astragaram-libs
+name: CI | Create a Conan package test for astragaram-libs on Linux
 
 on:
   push:

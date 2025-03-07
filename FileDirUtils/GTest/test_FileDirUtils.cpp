@@ -39,6 +39,10 @@ TEST( FileDirUtilsTest, ListFiles )
 #else
     std::string testFilePath = "test_dir2/test_file.txt";
 #endif
+    if( FileDirUtils::directoryExists( testDir ) )
+    {
+        FileDirUtils::deleteDirectory( testDir );
+    }
     EXPECT_TRUE( FileDirUtils::createDirectory( testDir ) );
     std::ofstream testFile( testFilePath );
 
