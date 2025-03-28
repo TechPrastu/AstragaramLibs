@@ -33,9 +33,11 @@ public:
 
     // Server initialization
     bool create();
+#ifndef _WIN32
     bool create( const std::string );
-    bool bind( const int port );
     bool bind( const std::string );
+#endif
+    bool bind( const int port );
     bool listen() const;
     bool accept( Socket & ) const;
 
@@ -47,7 +49,7 @@ public:
     bool send( const std::string ) const;
     int recv( std::string & ) const;
 
-    void set_non_blocking( const bool );
+    bool set_non_blocking( const bool );
 
     bool is_valid() const
     {

@@ -20,6 +20,8 @@ ClientSocket::ClientSocket( std::string host, int port )
         throw SocketException( "Could not connect to port." );
     }
 }
+
+#ifndef _WIN32
 ClientSocket::ClientSocket( std::string serverPath )
 {
     Logger::Trace( "%s: serverPath:%s", __func__, serverPath.c_str() );
@@ -35,6 +37,7 @@ ClientSocket::ClientSocket( std::string serverPath )
         throw SocketException( "Could not connect to serverPath " + serverPath );
     }
 }
+#endif
 
 const ClientSocket& ClientSocket::operator << ( const std::string& s ) const
 {

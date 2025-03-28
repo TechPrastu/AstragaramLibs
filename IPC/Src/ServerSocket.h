@@ -9,7 +9,9 @@ class ServerSocket : private Socket
 {
 public:
     ServerSocket( int port );
+#ifndef _WIN32
     ServerSocket( std::string );
+#endif
     ServerSocket() {};
     virtual ~ServerSocket();
 

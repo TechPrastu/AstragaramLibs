@@ -16,6 +16,18 @@ message(STATUS "Boost Version       : " ${Boost_VERSION})
 message(STATUS "CMAKE_SOURCE_DIR    : " ${CMAKE_SOURCE_DIR})
 message(STATUS "CMAKE_BINARY_DIR    : " ${CMAKE_BINARY_DIR})
 
+# Check the platform
+if(WIN32)
+    # Windows-specific settings
+    message(STATUS "Building on Windows")
+    add_definitions(-D_WIN32)
+elseif(UNIX)
+    # Linux-specific settings
+    message(STATUS "Building on Linux")
+else()
+    message(FATAL_ERROR "Unsupported platform")
+endif()
+
 #### Function to Generate Protobuf Files ######################################
 function(generate_protobuf OUTPUT_VAR TYPE)
     cmake_parse_arguments(GEN_PROTO "" "" "FILES" ${ARGN})
@@ -121,11 +133,12 @@ install(DIRECTORY StringUtils/Src/ DESTINATION include FILES_MATCHING PATTERN "*
 add_executable(TestLogger Logger/Src/Logger.cpp)
 target_link_libraries(TestLogger AstragaramLibs)
 
-add_executable(simple_server IPC/simple_server_main.cpp)
-target_link_libraries(simple_server AstragaramLibs)
-
-add_executable(simple_client IPC/simple_client_main.cpp)
-target_link_libraries(simple_client AstragaramLibs)
+if(UNIX)
+    add_executable(simple_server IPC/simple_server_main.cpp)
+    target_link_libraries(simple_server AstragaramLibs)
+    add_executable(simple_client IPC/simple_client_main.cpp)
+    target_link_libraries(simple_client AstragaramLibs)
+endif()
 
 add_executable(example_thread ThreadManager/example_thread.cpp)
 target_link_libraries(example_thread AstragaramLibs)
