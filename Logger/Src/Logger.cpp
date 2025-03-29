@@ -3,8 +3,8 @@
 int main()
 {
     const char* name = "User";
-//  Logger::EnableFileOutput();
-    Logger::SetPriority( LogLevel::INFO );
+    Logger::EnableFileOutput(); //Comment this line if you want logs on console only
+    Logger::SetPriority( LogLevel::LL_INFO );
     LOG_INFO( "Hello %s", name );
 
     LOG_CRITICAL( "OH NO!", name );

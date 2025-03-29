@@ -16,6 +16,18 @@ message(STATUS "Boost Version       : " ${Boost_VERSION})
 message(STATUS "CMAKE_SOURCE_DIR    : " ${CMAKE_SOURCE_DIR})
 message(STATUS "CMAKE_BINARY_DIR    : " ${CMAKE_BINARY_DIR})
 
+# Check the platform
+if(WIN32)
+    # Windows-specific settings
+    message(STATUS "Building on Windows")
+    add_definitions(-D_WIN32)
+elseif(UNIX)
+    # Linux-specific settings
+    message(STATUS "Building on Linux")
+else()
+    message(FATAL_ERROR "Unsupported platform")
+endif()
+
 #### Function to Generate Protobuf Files ######################################
 function(generate_protobuf OUTPUT_VAR TYPE)
     cmake_parse_arguments(GEN_PROTO "" "" "FILES" ${ARGN})
@@ -88,7 +100,6 @@ add_library(AstragaramLibs STATIC
     ThreadManager/Src/ThreadManager.cpp
     FileDirUtils/Src/FileDirUtils.cpp
     StringUtils/Src/StringUtils.cpp
-    NetworkUtils/Src/NetworkUtils.cpp
 )
 
 target_include_directories(AstragaramLibs PUBLIC
@@ -98,7 +109,6 @@ target_include_directories(AstragaramLibs PUBLIC
     FileDirUtils/Src
     StringUtils/Src
     ${CMAKE_BINARY_DIR}/ProtoFiles
-    NetworkUtils/Src
 )
 
 target_link_libraries(AstragaramLibs
@@ -121,14 +131,18 @@ install(DIRECTORY StringUtils/Src/ DESTINATION include FILES_MATCHING PATTERN "*
 add_executable(TestLogger Logger/Src/Logger.cpp)
 target_link_libraries(TestLogger AstragaramLibs)
 
-add_executable(simple_server IPC/simple_server_main.cpp)
-target_link_libraries(simple_server AstragaramLibs)
-
-add_executable(simple_client IPC/simple_client_main.cpp)
-target_link_libraries(simple_client AstragaramLibs)
+if(UNIX)
+    add_executable(simple_server IPC/simple_server_main.cpp)
+    target_link_libraries(simple_server AstragaramLibs)
+    add_executable(simple_client IPC/simple_client_main.cpp)
+    target_link_libraries(simple_client AstragaramLibs)
+endif()
 
 add_executable(example_thread ThreadManager/example_thread.cpp)
 target_link_libraries(example_thread AstragaramLibs)
+
+add_executable(example_misc MiscUtils/MiscUtils.cpp)
+target_link_libraries(example_misc AstragaramLibs)
 
 # Using the custom function to add tests
 add_custom_test(test_Socket IPC/GTest/test_Socket.cpp)
@@ -137,4 +151,3 @@ add_custom_test(test_ThreadManager ThreadManager/GTest/test_ThreadManager.cpp)
 add_custom_test(test_FileDirUtils FileDirUtils/GTest/test_FileDirUtils.cpp)
 add_custom_test(test_StringUtils StringUtils/GTest/test_StringUtils.cpp)
 add_custom_test(test_ProtobufHelper GoogleProtocolBuffers/GTest/test_ProtobufHelper.cpp)
-add_custom_test(test_NetworkUtils NetworkUtils/GTest/test_NetworkUtils.cpp)

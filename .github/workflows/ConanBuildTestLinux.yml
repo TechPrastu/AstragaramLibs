@@ -1,4 +1,4 @@
-name: CI | Create a Conan package for astragaram-libs
+name: CI | Conan Build Test On Linux
 
 on:
   push:
@@ -20,6 +20,10 @@ jobs:
         pip install conan==2.11.0
         conan profile detect
 
-    - name: Create a Conan package for astragaram-libs
+    - name: Install the requirements specified in a  conan recipe
       run: |
-        conan create . --build=missing -u
+        conan install . -of buildLinux --build missing -u 
+    
+    - name: Installing dependencies and call the build() method.
+      run: |
+        conan build . -of buildLinux

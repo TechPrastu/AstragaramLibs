@@ -1,0 +1,38 @@
+name: CI | Conan Build Test On Windows
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Install Conan
+      run: |
+        python -m pip install --upgrade pip
+        pip install conan==2.11.0
+
+    - name: Detect Conan profile
+      run: |
+        conan profile detect
+
+    - name: Install the requirements specified in a Conan recipe
+      run: |
+        conan install . -of buildwindows --build missing -u
+    
+    - name: Build using Conan
+      run: |
+        conan build . -of buildwindows

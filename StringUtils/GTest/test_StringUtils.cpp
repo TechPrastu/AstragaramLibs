@@ -56,7 +56,7 @@ TEST( StringUtilsTest, Remove )
 
 int main( int argc, char **argv )
 {
-    Logger::SetPriority( LogLevel::TRACE );
+    Logger::SetPriority( LogLevel::LL_TRACE );
     ::testing::InitGoogleTest( &argc, argv );
     return RUN_ALL_TESTS();
 }

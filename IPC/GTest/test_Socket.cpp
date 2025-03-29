@@ -34,6 +34,17 @@ void run_client_port()
     ASSERT_NO_THROW( client << send_data );
 }
 
+// Test case for sending and receiving data using a port
+TEST( SocketCommunicationTest, SendReceiveDataPort )
+{
+    std::thread server_thread( run_server_port );
+    std::thread client_thread( run_client_port );
+
+    server_thread.join();
+    client_thread.join();
+}
+
+#ifndef _WIN32
 // Function to run the server using a socket file
 void run_server_socket()
 {
@@ -62,16 +73,6 @@ void run_client_socket()
     ASSERT_NO_THROW( client << send_data );
 }
 
-// Test case for sending and receiving data using a port
-TEST( SocketCommunicationTest, SendReceiveDataPort )
-{
-    std::thread server_thread( run_server_port );
-    std::thread client_thread( run_client_port );
-
-    server_thread.join();
-    client_thread.join();
-}
-
 // Test case for sending and receiving data using a socket file
 TEST( SocketCommunicationTest, SendReceiveDataSocket )
 {
@@ -81,6 +82,7 @@ TEST( SocketCommunicationTest, SendReceiveDataSocket )
     server_thread.join();
     client_thread.join();
 }
+#endif
 
 // Test case for ServerSocket creation with port
 TEST( ServerSocketTest, CreateWithPort )
@@ -88,12 +90,14 @@ TEST( ServerSocketTest, CreateWithPort )
     ASSERT_NO_THROW( ServerSocket server( 8080 ) );
 }
 
+#ifndef _WIN32
 // Test case for ServerSocket creation with serverPath
 TEST( ServerSocketTest, CreateWithServerPath )
 {
     unlink( "/tmp/server.sock" );
     ASSERT_NO_THROW( ServerSocket server( "/tmp/server.sock" ) );
 }
+#endif
 
 // // Test case for ClientSocket creation with host and port
 // TEST( ClientSocketTest, CreateWithHostAndPort )

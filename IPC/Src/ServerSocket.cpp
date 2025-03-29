@@ -26,6 +26,7 @@ ServerSocket::ServerSocket( int port )
     }
 }
 
+#ifndef _WIN32
 ServerSocket::ServerSocket( std::string serverPath )
 {
     Logger::Trace( "%s: serverPath:%s", __func__, serverPath.c_str() );
@@ -54,6 +55,7 @@ ServerSocket::ServerSocket( std::string serverPath )
         throw SocketException( "Could not listen to socket." );
     }
 }
+#endif
 
 ServerSocket::~ServerSocket()
 {

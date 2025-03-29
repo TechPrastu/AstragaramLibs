@@ -2,15 +2,21 @@ import os
 from conan import ConanFile
 from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
 from conan.tools.build import can_run
+import subprocess
+import sys
 
 def get_latest_tag():
     try:
-        # Get the latest tag using os.popen and os.system
-        latest_tag = (
-            os.popen("git describe --tags `git rev-list --tags --max-count=1`")
-            .read()
-            .strip()
-        )
+        # Determine the appropriate command based on the platform
+        if sys.platform.startswith('win'):
+            command = 'git describe --tags $(git rev-list --tags --max-count=1)'
+        else:  # For Linux and others
+            command = 'git describe --tags `git rev-list --tags --max-count=1`'
+
+        # Execute the command using subprocess
+        result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        latest_tag = result.stdout.decode().strip()
+        
         if not latest_tag:
             return "1.0.0"  # Fallback version if no tags are found
         return latest_tag
@@ -64,7 +70,6 @@ class AstragaramLibs(ConanFile):
         self.tool_requires("cmake/3.30.5")
         self.requires("gtest/1.15.0")
         self.requires("protobuf/3.18.1")
-        self.requires("boost/1.81.0")
 
     def generate(self):
         tc = CMakeToolchain(self)

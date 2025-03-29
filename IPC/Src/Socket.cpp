@@ -1,17 +1,30 @@
-// Implementation of the Socket class.
 #include "Socket.h"
-#include "string.h"
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
+#include <cstring>
+#include <cerrno>
 #include "Logger.h"
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib") // Link with Winsock library
+typedef int socklen_t; // Define socklen_t for Windows
+#else
+#include <unistd.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <sys/un.h> // For UNIX domain sockets
+#endif
 
 Socket::Socket() : m_sock( -1 )
 {
     Logger::Trace( "%s", __func__ );
-
-    memset( &m_addr, 0, sizeof( m_addr ) );
-    memset( &serveraddr, 0, sizeof( serveraddr ) );
+    std::memset( &m_addr, 0, sizeof( m_addr ) );
+#ifndef _WIN32
+    std::memset( &serveraddr, 0, sizeof( serveraddr ) ); // For UNIX sockets
+#endif
 }
 
 Socket::~Socket()
@@ -20,7 +33,11 @@ Socket::~Socket()
 
     if( is_valid() )
     {
+#ifdef _WIN32
+        ::closesocket( m_sock );
+#else
         ::close( m_sock );
+#endif
     }
 }
 
@@ -28,16 +45,24 @@ bool Socket::create()
 {
     Logger::Trace( "%s", __func__ );
 
+#ifdef _WIN32
+    m_sock = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+    if( m_sock == INVALID_SOCKET )
+#else
     m_sock = socket( AF_INET, SOCK_STREAM, 0 );
-
-    if( ! is_valid() )
+    if( m_sock < 0 )
+#endif
     {
         return false;
     }
 
     // TIME_WAIT - argh
     int on = 1;
-    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, ( const char* ) &on, sizeof( on ) ) == -1 )
+#ifdef _WIN32
+    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, ( const char* )&on, sizeof( on ) ) == SOCKET_ERROR )
+#else
+    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof( on ) ) == -1 )
+#endif
     {
         return false;
     }
@@ -45,34 +70,33 @@ bool Socket::create()
     return true;
 }
 
+#ifndef _WIN32
 bool Socket::create( const std::string serverPath )
 {
-    Logger::Trace( "%s: serverPath:%s", __func__, serverPath );
+    Logger::Trace( "%s: serverPath:%s", __func__, serverPath.c_str() );
 
     m_sock = socket( AF_UNIX, SOCK_STREAM, 0 );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
 
-    //    if( setsockopt(m_sock, SOL_SOCKET, SO_RCVLOWAT, (char *)&BUFFER_LENGTH, sizeof(BUFFER_LENGTH)) == -1)
-    //        return false;
-
     int on = 1;
-    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, ( const char* ) &on, sizeof( on ) ) == -1 )
+    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, ( const char * )&on, sizeof( on ) ) == -1 )
     {
         return false;
     }
 
     return true;
 }
+#endif
 
 bool Socket::bind( const int port )
 {
     Logger::Trace( "%s: port:%d", __func__, port );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
@@ -81,7 +105,11 @@ bool Socket::bind( const int port )
     m_addr.sin_addr.s_addr = INADDR_ANY;
     m_addr.sin_port = htons( port );
 
-    int bind_return = ::bind( m_sock, ( struct sockaddr * ) &m_addr, sizeof( m_addr ) );
+#ifdef _WIN32
+    int bind_return = ::bind( m_sock, ( SOCKADDR* )&m_addr, sizeof( m_addr ) );
+#else
+    int bind_return = ::bind( m_sock, ( struct sockaddr* )&m_addr, sizeof( m_addr ) );
+#endif
 
     if( bind_return == -1 )
     {
@@ -91,11 +119,12 @@ bool Socket::bind( const int port )
     return true;
 }
 
+#ifndef _WIN32
 bool Socket::bind( const std::string serverPath )
 {
-    Logger::Trace( "%s: serverPath:%s", __func__, serverPath );
+    Logger::Trace( "%s: serverPath:%s", __func__, serverPath.c_str() );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
@@ -112,18 +141,18 @@ bool Socket::bind( const std::string serverPath )
 
     return true;
 }
+#endif
 
 bool Socket::listen() const
 {
     Logger::Trace( "%s", __func__ );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
 
     int listen_return = ::listen( m_sock, MAXCONNECTIONS );
-
 
     if( listen_return == -1 )
     {
@@ -133,13 +162,16 @@ bool Socket::listen() const
     return true;
 }
 
-
-bool Socket::accept( Socket& new_socket ) const
+bool Socket::accept( Socket &new_socket ) const
 {
     Logger::Trace( "%s", __func__ );
 
     int addr_length = sizeof( m_addr );
-    new_socket.m_sock = ::accept( m_sock, ( sockaddr * ) &m_addr, ( socklen_t * ) &addr_length );
+#ifdef _WIN32
+    new_socket.m_sock = ::accept( m_sock, ( SOCKADDR* )&m_addr, ( int* )&addr_length );
+#else
+    new_socket.m_sock = ::accept( m_sock, ( struct sockaddr* )&m_addr, ( socklen_t* )&addr_length );
+#endif
 
     if( new_socket.m_sock <= 0 )
     {
@@ -151,12 +183,16 @@ bool Socket::accept( Socket& new_socket ) const
     }
 }
 
-
 bool Socket::send( const std::string sendData ) const
 {
-    Logger::Trace( "%s: sendData:%s", __func__, sendData );
+    Logger::Trace( "%s: sendData:%s", __func__, sendData.c_str() );
 
+#ifdef _WIN32
+    size_t status = ::send( m_sock, sendData.c_str(), sendData.size(), 0 );
+#else
     int status = ::send( m_sock, sendData.c_str(), sendData.size(), MSG_NOSIGNAL );
+#endif
+
     if( status == -1 )
     {
         return false;
@@ -167,12 +203,11 @@ bool Socket::send( const std::string sendData ) const
     }
 }
 
-
-int Socket::recv( std::string& recvData ) const
+int Socket::recv( std::string &recvData ) const
 {
-    Logger::Trace( "%s: recvData:%s", __func__, recvData );
+    Logger::Trace( "%s: recvData:%s", __func__, recvData.c_str() );
 
-    char buf [ MAXRECV + 1 ];
+    char buf[MAXRECV + 1];
 
     recvData = "";
 
@@ -198,9 +233,9 @@ int Socket::recv( std::string& recvData ) const
 
 bool Socket::connect( const std::string host, const int port )
 {
-    Logger::Trace( "%s: host:%s, port:%s", __func__, host, port );
+    Logger::Trace( "%s: host:%s, port:%d", __func__, host.c_str(), port );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
@@ -215,7 +250,7 @@ bool Socket::connect( const std::string host, const int port )
         return false;
     }
 
-    status = ::connect( m_sock, ( sockaddr * ) &m_addr, sizeof( m_addr ) );
+    status = ::connect( m_sock, ( sockaddr * )&m_addr, sizeof( m_addr ) );
 
     if( status == 0 )
     {
@@ -227,11 +262,12 @@ bool Socket::connect( const std::string host, const int port )
     }
 }
 
+#ifndef _WIN32
 bool Socket::connect( const std::string serverPath )
 {
-    Logger::Trace( "%s: serverPath:%s", __func__, serverPath );
+    Logger::Trace( "%s: serverPath:%s", __func__, serverPath.c_str() );
 
-    if( ! is_valid() )
+    if( !is_valid() )
     {
         return false;
     }
@@ -250,18 +286,23 @@ bool Socket::connect( const std::string serverPath )
         return false;
     }
 }
+#endif
 
-void Socket::set_non_blocking( const bool b )
+bool Socket::set_non_blocking( const bool b )
 {
     Logger::Trace( "%s", __func__ );
 
-    int opts;
-
-    opts = fcntl( m_sock, F_GETFL );
-
+#ifdef _WIN32
+    u_long mode = b ? 1 : 0;
+    if( ioctlsocket( m_sock, FIONBIO, &mode ) != 0 )
+    {
+        return false;
+    }
+#else
+    int opts = fcntl( m_sock, F_GETFL );
     if( opts < 0 )
     {
-        return;
+        return false;
     }
 
     if( b )
@@ -273,6 +314,11 @@ void Socket::set_non_blocking( const bool b )
         opts = ( opts & ~O_NONBLOCK );
     }
 
-    fcntl( m_sock, F_SETFL, opts );
+    if( fcntl( m_sock, F_SETFL, opts ) == -1 )
+    {
+        return false;
+    }
+#endif
 
+    return true;
 }

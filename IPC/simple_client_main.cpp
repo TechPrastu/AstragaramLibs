@@ -6,7 +6,7 @@
 
 int main( int argc, char *argv[] )
 {
-    Logger::SetPriority( LogLevel::INFO );
+    Logger::SetPriority( LogLevel::LL_INFO );
 
     try
     {

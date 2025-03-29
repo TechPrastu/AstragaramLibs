@@ -1,17 +1,23 @@
-// Definition of the Socket class
+#ifndef SOCKET_H
+#define SOCKET_H
 
-#ifndef Socket_class
-#define Socket_class
-
-#include <stdio.h>
-#include <sys/un.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+#include <io.h>
+#else
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <unistd.h>
-#include <string>
 #include <arpa/inet.h>
+#endif
+
+#include <stdio.h>
+#include <string>
 #include <iostream>
 
 const int BUFFER_LENGTH = 250;
@@ -27,21 +33,23 @@ public:
 
     // Server initialization
     bool create();
+#ifndef _WIN32
     bool create( const std::string );
-    bool bind( const int port );
     bool bind( const std::string );
+#endif
+    bool bind( const int port );
     bool listen() const;
-    bool accept( Socket& ) const;
+    bool accept( Socket & ) const;
 
     // Client initialization
     bool connect( const std::string host, const int port );
     bool connect( const std::string );
 
-    // Data Transimission
+    // Data Transmission
     bool send( const std::string ) const;
-    int recv( std::string& ) const;
+    int recv( std::string & ) const;
 
-    void set_non_blocking( const bool );
+    bool set_non_blocking( const bool );
 
     bool is_valid() const
     {
@@ -49,10 +57,14 @@ public:
     }
 
 private:
-
-    int m_sock;
     sockaddr_in m_addr;
-    sockaddr_un serveraddr;
+#ifdef _WIN32
+    SOCKET m_sock;
+    sockaddr_in serveraddr;  // Windows uses sockaddr_in for server addresses
+#else
+    int m_sock;
+    sockaddr_un serveraddr;  // Unix-based systems use sockaddr_un for server addresses
+#endif
 };
 
-#endif
+#endif // SOCKET_H
