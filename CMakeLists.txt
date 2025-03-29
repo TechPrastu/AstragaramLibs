@@ -100,7 +100,6 @@ add_library(AstragaramLibs STATIC
     ThreadManager/Src/ThreadManager.cpp
     FileDirUtils/Src/FileDirUtils.cpp
     StringUtils/Src/StringUtils.cpp
-    NetworkUtils/Src/NetworkUtils.cpp
 )
 
 target_include_directories(AstragaramLibs PUBLIC
@@ -110,7 +109,6 @@ target_include_directories(AstragaramLibs PUBLIC
     FileDirUtils/Src
     StringUtils/Src
     ${CMAKE_BINARY_DIR}/ProtoFiles
-    NetworkUtils/Src
 )
 
 target_link_libraries(AstragaramLibs
@@ -153,4 +151,3 @@ add_custom_test(test_ThreadManager ThreadManager/GTest/test_ThreadManager.cpp)
 add_custom_test(test_FileDirUtils FileDirUtils/GTest/test_FileDirUtils.cpp)
 add_custom_test(test_StringUtils StringUtils/GTest/test_StringUtils.cpp)
 add_custom_test(test_ProtobufHelper GoogleProtocolBuffers/GTest/test_ProtobufHelper.cpp)
-add_custom_test(test_NetworkUtils NetworkUtils/GTest/test_NetworkUtils.cpp)

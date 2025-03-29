@@ -45,9 +45,13 @@ bool Socket::create()
 {
     Logger::Trace( "%s", __func__ );
 
+#ifdef _WIN32
+    m_sock = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+    if( m_sock == INVALID_SOCKET )
+#else
     m_sock = socket( AF_INET, SOCK_STREAM, 0 );
-
-    if( !is_valid() )
+    if( m_sock < 0 )
+#endif
     {
         return false;
     }
@@ -163,7 +167,11 @@ bool Socket::accept( Socket &new_socket ) const
     Logger::Trace( "%s", __func__ );
 
     int addr_length = sizeof( m_addr );
-    new_socket.m_sock = ::accept( m_sock, ( sockaddr * )&m_addr, ( socklen_t * )&addr_length );
+#ifdef _WIN32
+    new_socket.m_sock = ::accept( m_sock, ( SOCKADDR* )&m_addr, ( int* )&addr_length );
+#else
+    new_socket.m_sock = ::accept( m_sock, ( struct sockaddr* )&m_addr, ( socklen_t* )&addr_length );
+#endif
 
     if( new_socket.m_sock <= 0 )
     {
@@ -180,7 +188,7 @@ bool Socket::send( const std::string sendData ) const
     Logger::Trace( "%s: sendData:%s", __func__, sendData.c_str() );
 
 #ifdef _WIN32
-    int status = ::send( m_sock, sendData.c_str(), sendData.size(), 0 );
+    size_t status = ::send( m_sock, sendData.c_str(), sendData.size(), 0 );
 #else
     int status = ::send( m_sock, sendData.c_str(), sendData.size(), MSG_NOSIGNAL );
 #endif

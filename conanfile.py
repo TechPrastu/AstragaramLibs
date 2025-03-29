@@ -70,11 +70,9 @@ class AstragaramLibs(ConanFile):
         self.tool_requires("cmake/3.30.5")
         self.requires("gtest/1.15.0")
         self.requires("protobuf/3.18.1")
-        self.requires("boost/1.81.0")
 
     def generate(self):
         tc = CMakeToolchain(self)
-        # tc.variables["CMAKE_CXX_STANDARD"] = 17
         tc.generate()
         deps = CMakeDeps(self)
         deps.generate()

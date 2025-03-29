@@ -57,11 +57,12 @@ public:
     }
 
 private:
-    int m_sock;
     sockaddr_in m_addr;
 #ifdef _WIN32
+    SOCKET m_sock;
     sockaddr_in serveraddr;  // Windows uses sockaddr_in for server addresses
 #else
+    int m_sock;
     sockaddr_un serveraddr;  // Unix-based systems use sockaddr_un for server addresses
 #endif
 };
